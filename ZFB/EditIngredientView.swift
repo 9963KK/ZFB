@@ -1,4 +1,5 @@
 import SwiftUI
+import CoreData
 
 struct EditIngredientView: View {
     @Environment(\.dismiss) private var dismiss
@@ -18,6 +19,7 @@ struct EditIngredientView: View {
     @State private var showingDiscardAlert = false
     @State private var showingCategoryMismatchAlert = false
     @State private var showingEmptyAlert = false
+    @State private var showingDuplicateAlert = false
     @State private var suggestedCategory: String?
     @State private var showingDeleteAlert = false
     
@@ -247,6 +249,11 @@ struct EditIngredientView: View {
             } message: {
                 Text("\"\(name)\"已用完，将被标记为已用完状态")
             }
+            .alert("食材重复", isPresented: $showingDuplicateAlert) {
+                Button("确定", role: .cancel) { }
+            } message: {
+                Text("已经存在相同名称的食材")
+            }
         }
     }
     
@@ -274,38 +281,52 @@ struct EditIngredientView: View {
     }
     
     private func saveChanges() {
-        let context = ingredient.managedObjectContext
-        let quantityValue = Double(quantity) ?? 0
+        // 检查是否存在重复的食材名称（排除当前编辑的食材）
+        let fetchRequest: NSFetchRequest<Ingredient> = Ingredient.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "name ==[c] %@ AND self != %@", name, ingredient)
         
-        // 更新食材信息
-        ingredient.name = name
-        ingredient.category = category
-        
-        // 使用动画更新数量
-        withAnimation(.easeInOut(duration: 0.5)) {
-            ingredient.quantity = quantityValue
-        }
-        
-        ingredient.unit = unit
-        ingredient.purchaseDate = purchaseDate
-        ingredient.expiryDate = expiryDate
-        ingredient.notes = notes
-        
-        if let imageData = inputImage?.jpegData(compressionQuality: 0.8) {
-            ingredient.imageData = imageData
-        }
-        
-        // 保存更改
         do {
-            try context?.save()
-            // 如果数量为0，在保存成功后显示提示
-            if quantityValue == 0 {
-                showingEmptyAlert = true
-            } else {
-                dismiss()
+            let matchingIngredients = try ingredient.managedObjectContext?.fetch(fetchRequest) ?? []
+            if !matchingIngredients.isEmpty {
+                showingDuplicateAlert = true
+                return
+            }
+            
+            let context = ingredient.managedObjectContext
+            let quantityValue = Double(quantity) ?? 0
+            
+            // 更新食材信息
+            ingredient.name = name
+            ingredient.category = category
+            
+            // 使用动画更新数量
+            withAnimation(.easeInOut(duration: 0.5)) {
+                ingredient.quantity = quantityValue
+            }
+            
+            ingredient.unit = unit
+            ingredient.purchaseDate = purchaseDate
+            ingredient.expiryDate = expiryDate
+            ingredient.notes = notes
+            
+            if let imageData = inputImage?.jpegData(compressionQuality: 0.8) {
+                ingredient.imageData = imageData
+            }
+            
+            // 保存更改
+            do {
+                try context?.save()
+                // 如果数量为0，在保存成功后显示提示
+                if quantityValue == 0 {
+                    showingEmptyAlert = true
+                } else {
+                    dismiss()
+                }
+            } catch {
+                print("保存失败: \(error)")
             }
         } catch {
-            print("保存失败: \(error)")
+            print("获取重复食材失败: \(error)")
         }
     }
     

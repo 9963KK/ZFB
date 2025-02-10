@@ -1,4 +1,5 @@
 import SwiftUI
+import CoreData
 
 struct AddIngredientView: View {
     @Environment(\.managedObjectContext) private var viewContext
@@ -13,6 +14,7 @@ struct AddIngredientView: View {
     @State private var notes = ""
     @State private var showingImagePicker = false
     @State private var inputImage: UIImage?
+    @State private var showingDuplicateAlert = false
     
     let categories = ["蔬菜", "水果", "肉类", "海鲜", "调味料", "其他"]
     let commonUnits = ["个", "颗", "把", "包", "克", "千克", "升", "毫升"]
@@ -80,6 +82,9 @@ struct AddIngredientView: View {
                 }
                 .disabled(name.isEmpty || category.isEmpty || quantity.isEmpty || unit.isEmpty)
             )
+            .alert(isPresented: $showingDuplicateAlert) {
+                Alert(title: Text("食材重复"), message: Text("已经存在相同名称的食材"), dismissButton: .default(Text("确定")))
+            }
         }
         .sheet(isPresented: $showingImagePicker) {
             ImagePicker(image: $inputImage)
@@ -87,25 +92,39 @@ struct AddIngredientView: View {
     }
     
     private func saveIngredient() {
-        let ingredient = Ingredient(context: viewContext)
-        ingredient.name = name
-        ingredient.category = category
-        ingredient.quantity = Double(quantity) ?? 0
-        ingredient.unit = unit
-        ingredient.purchaseDate = purchaseDate
-        ingredient.expiryDate = expiryDate
-        ingredient.notes = notes
-        
-        if let inputImage = inputImage {
-            ingredient.imageData = inputImage.jpegData(compressionQuality: 0.8)
-        }
+        // 检查是否存在重复的食材名称
+        let fetchRequest: NSFetchRequest<Ingredient> = Ingredient.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "name ==[c] %@", name)
         
         do {
-            try viewContext.save()
-            isPresented = false
+            let matchingIngredients = try viewContext.fetch(fetchRequest)
+            if !matchingIngredients.isEmpty {
+                showingDuplicateAlert = true
+                return
+            }
+            
+            let ingredient = Ingredient(context: viewContext)
+            ingredient.name = name
+            ingredient.category = category
+            ingredient.quantity = Double(quantity) ?? 0
+            ingredient.unit = unit
+            ingredient.purchaseDate = purchaseDate
+            ingredient.expiryDate = expiryDate
+            ingredient.notes = notes
+            
+            if let inputImage = inputImage {
+                ingredient.imageData = inputImage.jpegData(compressionQuality: 0.8)
+            }
+            
+            do {
+                try viewContext.save()
+                isPresented = false
+            } catch {
+                let nsError = error as NSError
+                print("保存食材失败: \(nsError)")
+            }
         } catch {
-            let nsError = error as NSError
-            print("保存食材失败: \(nsError)")
+            print("检查重复食材失败: \(error)")
         }
     }
 }
