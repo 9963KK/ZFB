@@ -6,7 +6,7 @@ struct AddIngredientView: View {
     @Binding var isPresented: Bool
     
     @State private var name = ""
-    @State private var quantity = ""
+    @State private var quantity = "1"  // 默认值为1
     @State private var unit = ""
     @State private var category = "蔬菜"  // 默认类别
     @State private var purchaseDate = Date()
@@ -30,20 +30,56 @@ struct AddIngredientView: View {
                             }
                         }
                     
-                    TextField("数量", text: $quantity)
-                        .keyboardType(.decimalPad)
+                    // 数量编辑器
+                    HStack {
+                        Text("数量")
+                        Spacer()
+                        
+                        if IngredientUnitManager.shared.supportsQuickAdjust(unit) {
+                            // 快捷加减按钮
+                            Button(action: {
+                                if let current = Double(quantity), current > 0 {
+                                    quantity = String(current - 1)
+                                }
+                            }) {
+                                Image(systemName: "minus.circle.fill")
+                                    .foregroundColor(.blue)
+                            }
+                            .disabled(Double(quantity) ?? 0 <= 1)
+                            
+                            Text(quantity)
+                                .frame(minWidth: 40)
+                                .multilineTextAlignment(.center)
+                            
+                            Button(action: {
+                                if let current = Double(quantity) {
+                                    quantity = String(current + 1)
+                                }
+                            }) {
+                                Image(systemName: "plus.circle.fill")
+                                    .foregroundColor(.blue)
+                            }
+                        } else {
+                            // 数字输入框
+                            TextField("", text: $quantity)
+                                .keyboardType(.decimalPad)
+                                .multilineTextAlignment(.center)
+                                .frame(width: 80)
+                        }
+                        
+                        // 单位选择器
+                        Picker("单位", selection: $unit) {
+                            ForEach(IngredientUnitManager.shared.getUnitsForCategory(category), id: \.self) { unit in
+                                Text(unit).tag(unit)
+                            }
+                        }
+                        .frame(width: 80)
+                    }
                     
                     // 类别选择
                     Picker("类别", selection: $category) {
                         ForEach(categories, id: \.self) { category in
                             Text(category).tag(category)
-                        }
-                    }
-                    
-                    // 根据类别动态显示可用单位
-                    Picker("单位", selection: $unit) {
-                        ForEach(IngredientUnitManager.shared.getUnitsForCategory(category), id: \.self) { unit in
-                            Text(unit).tag(unit)
                         }
                     }
                     .onChange(of: category) { newCategory in

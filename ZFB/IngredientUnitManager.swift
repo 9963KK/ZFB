@@ -13,9 +13,17 @@ struct IngredientUnitManager {
         "其他": ["个", "包", "克", "千克", "毫升", "升"]
     ]
     
+    // 支持快捷加减的单位
+    private let quickAdjustUnits = Set(["个", "颗", "只", "条", "包"])
+    
     // 获取指定类别可用的单位
     func getUnitsForCategory(_ category: String) -> [String] {
         return categoryUnits[category] ?? ["个", "克", "千克"] // 默认单位
+    }
+    
+    // 检查单位是否支持快捷加减
+    func supportsQuickAdjust(_ unit: String) -> Bool {
+        return quickAdjustUnits.contains(unit)
     }
     
     // 检查单位是否适用于指定类别
