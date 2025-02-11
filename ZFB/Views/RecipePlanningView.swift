@@ -106,42 +106,65 @@ struct ScrollOffsetPreferenceKey: PreferenceKey {
 // MARK: - RecipePlanningCell
 struct RecipePlanningCell: View {
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack {
+        VStack(alignment: .leading, spacing: 12) {
+            // 第一行：食谱名称和标签
+            HStack(alignment: .top) {
                 Text("红烧排骨")
                     .font(.headline)
+                    .foregroundColor(.primary)
+                
                 Spacer()
-                Text("4人份")
-                    .font(.subheadline)
-                    .foregroundColor(.gray)
-            }
-            
-            HStack {
-                Label("45分钟", systemImage: "clock")
-                Spacer()
-                Label("中等难度", systemImage: "star.fill")
-            }
-            .font(.caption)
-            .foregroundColor(.gray)
-            
-            // 标签
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack {
-                    ForEach(["家常菜", "热门", "肉类"], id: \.self) { tag in
-                        Text(tag)
+                
+                // 人份和难度
+                VStack(alignment: .trailing, spacing: 4) {
+                    Text("4人份")
+                        .font(.subheadline)
+                        .foregroundColor(.gray)
+                    
+                    HStack(spacing: 4) {
+                        Text("中等难度")
                             .font(.caption)
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 4)
-                            .background(Color.blue.opacity(0.1))
-                            .foregroundColor(.blue)
-                            .cornerRadius(4)
+                            .foregroundColor(.gray)
+                        Image(systemName: "star.fill")
+                            .font(.caption)
+                            .foregroundColor(.yellow)
+                    }
+                }
+            }
+            
+            // 第二行：烹饪时间和标签
+            HStack(alignment: .center, spacing: 12) {
+                // 烹饪时间
+                Label {
+                    Text("45分钟")
+                        .font(.caption)
+                        .foregroundColor(.gray)
+                } icon: {
+                    Image(systemName: "clock")
+                        .foregroundColor(.gray)
+                        .font(.caption)
+                }
+                
+                // 标签
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 8) {
+                        ForEach(["家常菜", "热门", "肉类"], id: \.self) { tag in
+                            Text(tag)
+                                .font(.caption)
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 4)
+                                .background(Color.blue.opacity(0.1))
+                                .foregroundColor(.blue)
+                                .cornerRadius(12)
+                        }
                     }
                 }
             }
         }
-        .padding(.vertical, 8)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
         .background(Color(UIColor.systemBackground))
-        .cornerRadius(10)
+        .cornerRadius(12)
         .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
     }
 }
