@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [1.0.3] - 2025-02-11
+
+### Changed
+- 优化食谱卡片界面布局
+  - 改进信息的排布结构，分为两行展示
+  - 优化人份和难度信息的显示方式
+  - 调整标签样式和间距
+  - 改进卡片整体视觉效果
+
 ## [1.0.2] - 2025-02-11
 
 ### Added

@@ -17,40 +17,56 @@ struct ContentView: View {
     @State private var showingAddSheet = false
     @State private var selectedIngredient: Ingredient?
     @State private var showingEditSheet = false
+    @State private var selectedTab = 0
     
     var body: some View {
-        NavigationView {
-            ScrollView {
-                LazyVStack(spacing: 12) {
-                    ForEach(ingredients) { ingredient in
-                        IngredientCard(ingredient: ingredient) {
-                            selectedIngredient = ingredient
-                            showingEditSheet = true
+        TabView(selection: $selectedTab) {
+            // 食材标签页
+            NavigationView {
+                ScrollView {
+                    LazyVStack(spacing: 12) {
+                        ForEach(ingredients) { ingredient in
+                            IngredientCard(ingredient: ingredient) {
+                                selectedIngredient = ingredient
+                                showingEditSheet = true
+                            }
+                            .id(ingredient.objectID)
                         }
-                        .id(ingredient.objectID)
+                    }
+                    .padding()
+                }
+                .navigationTitle("我的食材")
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Button(action: { showingAddSheet = true }) {
+                            Label("添加食材", systemImage: "plus")
+                        }
                     }
                 }
-                .padding()
-            }
-            .navigationTitle("我的食材")
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: { showingAddSheet = true }) {
-                        Label("添加食材", systemImage: "plus")
+                .sheet(isPresented: $showingAddSheet) {
+                    AddIngredientView(isPresented: $showingAddSheet)
+                }
+                .sheet(isPresented: $showingEditSheet) {
+                    if let ingredient = selectedIngredient {
+                        EditIngredientView(ingredient: ingredient)
+                            .environment(\.managedObjectContext, viewContext)
+                            .transition(.opacity.combined(with: .move(edge: .bottom)))
+                            .animation(.spring(response: 0.4, dampingFraction: 0.8), value: showingEditSheet)
                     }
                 }
             }
-            .sheet(isPresented: $showingAddSheet) {
-                AddIngredientView(isPresented: $showingAddSheet)
+            .tabItem {
+                Label("食材", systemImage: "carrot")
             }
-            .sheet(isPresented: $showingEditSheet) {
-                if let ingredient = selectedIngredient {
-                    EditIngredientView(ingredient: ingredient)
-                        .environment(\.managedObjectContext, viewContext)
-                        .transition(.opacity.combined(with: .move(edge: .bottom)))
-                        .animation(.spring(response: 0.4, dampingFraction: 0.8), value: showingEditSheet)
+            .tag(0)
+            
+            // 食谱标签页
+            RecipePlanningView()
+                .environment(\.managedObjectContext, viewContext)
+                .tabItem {
+                    Label("食谱", systemImage: "book")
                 }
-            }
+                .tag(1)
         }
     }
 }
