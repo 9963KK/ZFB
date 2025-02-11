@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [1.0.4] - 2025-02-11
+
+### Changed
+- 简化食谱规划界面
+  - 移除小食选项，仅保留早餐、午餐、晚餐三个时段
+
 ## [1.0.3] - 2025-02-11
 
 ### Changed

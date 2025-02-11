@@ -11,7 +11,7 @@ struct RecipePlanningView: View {
     @State private var scrollOffset: CGFloat = 0
     @State private var isCalendarVisible = true
     
-    private let mealTimes = ["早餐", "午餐", "晚餐", "小食"]
+    private let mealTimes = ["早餐", "午餐", "晚餐"]
     private let calendar = Calendar.current
     
     // MARK: - Body
