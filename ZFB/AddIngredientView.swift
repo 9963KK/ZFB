@@ -6,9 +6,9 @@ struct AddIngredientView: View {
     @Binding var isPresented: Bool
     
     @State private var name = ""
-    @State private var category = "其他"
     @State private var quantity = ""
-    @State private var unit = "个"
+    @State private var unit = ""
+    @State private var category = "蔬菜"  // 默认类别
     @State private var purchaseDate = Date()
     @State private var expiryDate = Date()
     @State private var notes = ""
@@ -16,8 +16,7 @@ struct AddIngredientView: View {
     @State private var inputImage: UIImage?
     @State private var showingDuplicateAlert = false
     
-    let categories = ["蔬菜", "水果", "肉类", "海鲜", "调味料", "其他"]
-    let commonUnits = ["个", "颗", "把", "包", "克", "千克", "升", "毫升"]
+    private let categories = ["蔬菜", "水果", "肉类", "海鲜", "调味料", "其他"]
     
     var body: some View {
         NavigationView {
@@ -31,20 +30,25 @@ struct AddIngredientView: View {
                             }
                         }
                     
-                    Picker("分类", selection: $category) {
+                    TextField("数量", text: $quantity)
+                        .keyboardType(.decimalPad)
+                    
+                    // 类别选择
+                    Picker("类别", selection: $category) {
                         ForEach(categories, id: \.self) { category in
                             Text(category).tag(category)
                         }
                     }
-                    HStack {
-                        TextField("数量", text: $quantity)
-                            .keyboardType(.decimalPad)
-                        Picker("单位", selection: $unit) {
-                            ForEach(commonUnits, id: \.self) { unit in
-                                Text(unit).tag(unit)
-                            }
+                    
+                    // 根据类别动态显示可用单位
+                    Picker("单位", selection: $unit) {
+                        ForEach(IngredientUnitManager.shared.getUnitsForCategory(category), id: \.self) { unit in
+                            Text(unit).tag(unit)
                         }
-                        .pickerStyle(MenuPickerStyle())
+                    }
+                    .onChange(of: category) { newCategory in
+                        // 当类别改变时，设置该类别的默认单位
+                        unit = IngredientUnitManager.shared.getDefaultUnitForCategory(newCategory)
                     }
                 }
                 

@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [1.0.5] - 2025-02-11
+
+### Added
+- 添加食材单位管理功能
+  - 创建 IngredientUnitManager 管理不同类别食材的计量单位
+  - 根据食材类别动态显示合适的计量单位选项
+  - 切换食材类别时自动选择默认计量单位
+
+### Changed
+- 优化食材添加界面
+  - 调整单位选择器的布局
+  - 改进类别和单位的关联逻辑
+
 ## [1.0.4] - 2025-02-11
 
 ### Changed
