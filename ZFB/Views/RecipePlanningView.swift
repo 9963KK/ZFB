@@ -125,9 +125,8 @@ struct RecipePlanningCell: View {
                         Text("中等难度")
                             .font(.caption)
                             .foregroundColor(.gray)
-                        Image(systemName: "star.fill")
+                        Text("⭐⭐")
                             .font(.caption)
-                            .foregroundColor(.yellow)
                     }
                 }
             }

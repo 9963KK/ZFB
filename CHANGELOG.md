@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added
+- 添加食谱难度等级显示功能
+  - 使用emoji星星(⭐)直观展示难度等级
+  - 优化难度等级在食谱卡片中的显示布局
+  - 实现难度等级的动态渲染
+
 ## [1.0.9] - 2025-02-11
 
 ### Changed

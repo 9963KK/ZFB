@@ -18,22 +18,29 @@ struct ContentView: View {
     @State private var selectedIngredient: Ingredient?
     @State private var showingEditSheet = false
     @State private var selectedTab = 0
+    @State private var isLoading = true
     
     var body: some View {
         TabView(selection: $selectedTab) {
             // 食材标签页
             NavigationView {
                 ScrollView {
-                    LazyVStack(spacing: 12) {
-                        ForEach(ingredients) { ingredient in
-                            IngredientCard(ingredient: ingredient) {
-                                selectedIngredient = ingredient
-                                showingEditSheet = true
+                    if isLoading {
+                        ProgressView("加载中...")
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .padding()
+                    } else {
+                        LazyVStack(spacing: 12) {
+                            ForEach(ingredients) { ingredient in
+                                IngredientCard(ingredient: ingredient) {
+                                    selectedIngredient = ingredient
+                                    showingEditSheet = true
+                                }
+                                .id(ingredient.objectID)
                             }
-                            .id(ingredient.objectID)
                         }
+                        .padding()
                     }
-                    .padding()
                 }
                 .navigationTitle("我的食材")
                 .toolbar {
@@ -42,6 +49,11 @@ struct ContentView: View {
                             Label("添加食材", systemImage: "plus")
                         }
                     }
+                }
+                .onAppear {
+                    // 强制刷新视图
+                    viewContext.refreshAllObjects()
+                    isLoading = false
                 }
                 .sheet(isPresented: $showingAddSheet) {
                     AddIngredientView(isPresented: $showingAddSheet)
