@@ -3,40 +3,47 @@ import CoreData
 
 struct AddIngredientView: View {
     @Environment(\.managedObjectContext) private var viewContext
+    @Environment(\.dismiss) private var dismiss
     @Binding var isPresented: Bool
     
     @State private var name = ""
-    @State private var quantity = "1"  // 默认值为1
+    @State private var quantity = "1"
     @State private var unit = ""
-    @State private var category = "蔬菜"  // 默认类别
+    @State private var category = "蔬菜"
     @State private var purchaseDate = Date()
     @State private var expiryDate = Date()
     @State private var notes = ""
     @State private var showingImagePicker = false
     @State private var inputImage: UIImage?
-    @State private var showingDuplicateAlert = false
+    @State private var showingAlert = false
+    @State private var alertMessage = ""
     
     private let categories = ["蔬菜", "水果", "肉类", "海鲜", "调味料", "其他"]
+    private let dateRanges = [3, 5, 7, 14, 30, 60, 90]
     
     var body: some View {
         NavigationView {
             Form {
+                // 基本信息
                 Section(header: Text("基本信息")) {
                     TextField("名称", text: $name)
-                        .onChange(of: name) { newValue in
-                            // 当名称改变时，尝试自动设置分类
-                            if let suggestedCategory = IngredientCategoryManager.shared.getCategory(for: newValue) {
-                                category = suggestedCategory
+                    
+                    // 类别选择
+                    HStack {
+                        Text("分类")
+                        Spacer()
+                        Picker("", selection: $category) {
+                            ForEach(categories, id: \.self) { category in
+                                Text(category).tag(category)
                             }
                         }
+                        .pickerStyle(.menu)
+                    }
                     
-                    // 数量编辑器
+                    // 数量和单位
                     HStack {
-                        Text("数量")
                         Spacer()
-                        
                         if IngredientUnitManager.shared.supportsQuickAdjust(unit) {
-                            // 快捷加减按钮
                             Button(action: {
                                 if let current = Double(quantity), current > 0 {
                                     quantity = String(current - 1)
@@ -46,11 +53,21 @@ struct AddIngredientView: View {
                                     .foregroundColor(.blue)
                             }
                             .disabled(Double(quantity) ?? 0 <= 1)
-                            
+                        }
+                        
+                        if IngredientUnitManager.shared.supportsQuickAdjust(unit) {
                             Text(quantity)
                                 .frame(minWidth: 40)
                                 .multilineTextAlignment(.center)
-                            
+                        } else {
+                            TextField("", text: $quantity)
+                                .keyboardType(.decimalPad)
+                                .multilineTextAlignment(.center)
+                                .frame(minWidth: 60, idealWidth: 80, maxWidth: 120)
+                                .textFieldStyle(RoundedBorderTextFieldStyle())
+                        }
+                        
+                        if IngredientUnitManager.shared.supportsQuickAdjust(unit) {
                             Button(action: {
                                 if let current = Double(quantity) {
                                     quantity = String(current + 1)
@@ -59,75 +76,92 @@ struct AddIngredientView: View {
                                 Image(systemName: "plus.circle.fill")
                                     .foregroundColor(.blue)
                             }
-                        } else {
-                            // 数字输入框
-                            TextField("", text: $quantity)
-                                .keyboardType(.decimalPad)
-                                .multilineTextAlignment(.center)
-                                .frame(width: 80)
                         }
                         
-                        // 单位选择器
-                        Picker("单位", selection: $unit) {
+                        Picker("", selection: $unit) {
                             ForEach(IngredientUnitManager.shared.getUnitsForCategory(category), id: \.self) { unit in
                                 Text(unit).tag(unit)
                             }
                         }
+                        .pickerStyle(.menu)
                         .frame(width: 80)
                     }
-                    
-                    // 类别选择
-                    Picker("类别", selection: $category) {
-                        ForEach(categories, id: \.self) { category in
-                            Text(category).tag(category)
-                        }
-                    }
-                    .onChange(of: category) { newCategory in
-                        // 当类别改变时，设置该类别的默认单位
-                        unit = IngredientUnitManager.shared.getDefaultUnitForCategory(newCategory)
-                    }
                 }
                 
+                // 日期信息
                 Section(header: Text("日期信息")) {
-                    DateSelectionView(purchaseDate: $purchaseDate, expiryDate: $expiryDate)
+                    HStack {
+                        Text("存入")
+                        Spacer()
+                        DatePicker("", selection: $purchaseDate, displayedComponents: .date)
+                    }
+                    
+                    HStack {
+                        Text("过期")
+                        Spacer()
+                        DatePicker("", selection: $expiryDate, displayedComponents: .date)
+                    }
+                    
+                    // 快捷日期选择
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 12) {
+                            ForEach(dateRanges, id: \.self) { days in
+                                Button(action: {
+                                    expiryDate = Calendar.current.date(byAdding: .day, value: days, to: purchaseDate) ?? Date()
+                                }) {
+                                    Text("\(days)天")
+                                        .padding(.horizontal, 12)
+                                        .padding(.vertical, 6)
+                                        .background(Color.blue.opacity(0.1))
+                                        .cornerRadius(8)
+                                }
+                            }
+                        }
+                        .padding(.vertical, 4)
+                    }
                 }
                 
+                // 备注
                 Section(header: Text("备注")) {
                     TextEditor(text: $notes)
                         .frame(height: 100)
                 }
                 
+                // 图片
                 Section(header: Text("图片")) {
                     Button(action: {
                         showingImagePicker = true
                     }) {
-                        HStack {
-                            Text("选择图片")
-                            Spacer()
-                            if inputImage != nil {
-                                Image(systemName: "checkmark.circle.fill")
-                                    .foregroundColor(.green)
-                            }
-                        }
+                        Text(inputImage == nil ? "选择图片" : "更换图片")
+                            .foregroundColor(.blue)
                     }
                 }
             }
             .navigationTitle("添加食材")
-            .navigationBarItems(
-                leading: Button("取消") {
-                    isPresented = false
-                },
-                trailing: Button("保存") {
-                    saveIngredient()
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("取消") {
+                        dismiss()
+                    }
                 }
-                .disabled(name.isEmpty || category.isEmpty || quantity.isEmpty || unit.isEmpty)
-            )
-            .alert(isPresented: $showingDuplicateAlert) {
-                Alert(title: Text("食材重复"), message: Text("已经存在相同名称的食材"), dismissButton: .default(Text("确定")))
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("保存") {
+                        saveIngredient()
+                    }
+                }
             }
-        }
-        .sheet(isPresented: $showingImagePicker) {
-            ImagePicker(image: $inputImage)
+            .onChange(of: category) { newCategory in
+                unit = IngredientUnitManager.shared.getDefaultUnitForCategory(newCategory)
+            }
+            .sheet(isPresented: $showingImagePicker) {
+                ImagePicker(image: $inputImage)
+            }
+            .alert("提示", isPresented: $showingAlert) {
+                Button("确定", role: .cancel) { }
+            } message: {
+                Text(alertMessage)
+            }
         }
     }
     
@@ -139,7 +173,8 @@ struct AddIngredientView: View {
         do {
             let matchingIngredients = try viewContext.fetch(fetchRequest)
             if !matchingIngredients.isEmpty {
-                showingDuplicateAlert = true
+                showingAlert = true
+                alertMessage = "已经存在相同名称的食材"
                 return
             }
             
@@ -158,7 +193,7 @@ struct AddIngredientView: View {
             
             do {
                 try viewContext.save()
-                isPresented = false
+                dismiss()
             } catch {
                 let nsError = error as NSError
                 print("保存食材失败: \(nsError)")
