@@ -10,6 +10,14 @@ All notable changes to this project will be documented in this file.
   - 优化难度等级在食谱卡片中的显示布局
   - 实现难度等级的动态渲染
 
+## [1.1.0] - 2025-02-13
+
+### Added
+- 添加食谱卡片交互功能
+  - 点击卡片可导航至食谱详情页
+  - 保持卡片原有样式和视觉效果
+  - 优化布局和间距
+
 ## [1.0.9] - 2025-02-11
 
 ### Changed
