@@ -106,46 +106,62 @@ struct ScrollOffsetPreferenceKey: PreferenceKey {
 // MARK: - RecipePlanningCell
 struct RecipePlanningCell: View {
     var body: some View {
-        NavigationLink(destination: Text("食谱详情页")) {  // 临时使用Text，后续替换为实际的详情页
-            VStack(alignment: .leading, spacing: 8) {
-                HStack {
-                    Text("红烧排骨")
-                        .font(.headline)
-                    Spacer()
-                    Text("4人份")
-                        .font(.subheadline)
-                        .foregroundColor(.gray)
+        NavigationLink(destination: Text("食谱详情页")) {
+            VStack(alignment: .leading, spacing: 12) {
+                // 第一行：标题
+                Text("红烧排骨")
+                    .font(.title3)
+                    .fontWeight(.medium)
+                
+                // 第二行：时间和难度
+                HStack(spacing: 16) {
+                    HStack(spacing: 4) {
+                        Image(systemName: "clock")
+                            .foregroundColor(.gray)
+                        Text("45分钟")
+                    }
+                    .font(.subheadline)
+                    .foregroundColor(.gray)
+                    
+                    HStack(spacing: 4) {
+                        Image(systemName: "person.2")
+                            .foregroundColor(.gray)
+                        Text("4人份")
+                    }
+                    .font(.subheadline)
+                    .foregroundColor(.gray)
+                    
+                    HStack(spacing: 4) {
+                        Image(systemName: "star.fill")
+                            .foregroundColor(.yellow)
+                        Text("中等难度")
+                    }
+                    .font(.subheadline)
+                    .foregroundColor(.gray)
                 }
                 
-                HStack {
-                    Label("45分钟", systemImage: "clock")
-                    Spacer()
-                    Label("中等难度", systemImage: "star.fill")
-                }
-                .font(.caption)
-                .foregroundColor(.gray)
-                
-                // 标签
+                // 第三行：标签
                 ScrollView(.horizontal, showsIndicators: false) {
-                    HStack {
+                    HStack(spacing: 8) {
                         ForEach(["家常菜", "热门", "肉类"], id: \.self) { tag in
                             Text(tag)
                                 .font(.caption)
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 4)
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 5)
                                 .background(Color.blue.opacity(0.1))
                                 .foregroundColor(.blue)
-                                .cornerRadius(4)
+                                .cornerRadius(15)
                         }
                     }
                 }
             }
-            .padding(.vertical, 8)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
             .background(Color(UIColor.systemBackground))
-            .cornerRadius(10)
+            .cornerRadius(12)
             .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
         }
-        .buttonStyle(PlainButtonStyle())  // 保持卡片原有样式
+        .buttonStyle(PlainButtonStyle())
     }
 }
 
