@@ -15,6 +15,25 @@ struct RecipeDetailView: View {
     private let springDamping: Double = 0.6
     private let springResponse: Double = 0.3
     
+    // 计算难度显示
+    private var difficultyText: String {
+        switch difficulty {
+        case 1: return "简单"
+        case 3: return "中等"
+        case 5: return "困难"
+        default: return "中等"
+        }
+    }
+    
+    private var difficultyStars: String {
+        switch difficulty {
+        case 1: return "⭐️"
+        case 3: return "⭐️⭐️"
+        case 5: return "⭐️⭐️⭐️"
+        default: return "⭐️⭐️"
+        }
+    }
+    
     // MARK: - Body
     var body: some View {
         ScrollView {
@@ -42,26 +61,22 @@ struct RecipeDetailView: View {
                     }
                     
                     // 难度和时间
-                    HStack(spacing: 20) {
-                        // 难度
-                        HStack {
-                            Text("难度：")
-                            ForEach(0..<5) { index in
-                                Image(systemName: index < difficulty ? "star.fill" : "star")
-                                    .foregroundColor(.yellow)
-                            }
-                        }
-                        
-                        Divider()
-                            .frame(height: 20)
-                        
-                        // 烹饪时间
-                        HStack {
+                    HStack(spacing: 16) {
+                        HStack(spacing: 4) {
                             Image(systemName: "clock")
+                                .foregroundColor(.gray)
                             Text("\(cookingTime) 分钟")
                         }
+                        .font(.subheadline)
+                        .foregroundColor(.gray)
+                        
+                        HStack(spacing: 2) {
+                            Text(difficultyStars)
+                            Text(difficultyText)
+                                .foregroundColor(.gray)
+                                .font(.subheadline)
+                        }
                     }
-                    .foregroundColor(.secondary)
                     
                     // 所需食材
                     VStack(alignment: .leading, spacing: 12) {

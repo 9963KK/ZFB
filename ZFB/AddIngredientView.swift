@@ -45,12 +45,13 @@ struct AddIngredientView: View {
             Form {
                 Section(header: Text("基本信息")) {
                     TextField("名称", text: $name)
-                        .onChange(of: name) { newName in
-                            checkCategoryMatch(for: newName)
+                        .onSubmit {
+                            checkCategoryMatch(for: name)
                         }
+                        .submitLabel(.done)
                     
                     Picker("分类", selection: $category) {
-                        ForEach(IngredientIcon.categories, id: \.self) { category in
+                        ForEach(IngredientCategoryManager.shared.categories, id: \.self) { category in
                             Text(IngredientIcon.getCategoryWithIcon(for: category)).tag(category)
                         }
                     }

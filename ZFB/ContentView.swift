@@ -14,11 +14,28 @@ struct ContentView: View {
         sortDescriptors: [NSSortDescriptor(keyPath: \Ingredient.name, ascending: true)],
         animation: .default)
     private var ingredients: FetchedResults<Ingredient>
+    
     @State private var showingAddSheet = false
     @State private var selectedIngredient: Ingredient?
     @State private var showingEditSheet = false
     @State private var selectedTab = 0
     @State private var isLoading = true
+    @State private var showingFilterSheet = false
+    @State private var showingCategoryCheckSheet = false
+    @State private var filter = IngredientFilter()
+    
+    // 获取所有可用的分类
+    private var categories: [String] {
+        let allCategories = ingredients.compactMap { $0.category }
+        return Array(Set(allCategories)).sorted()
+    }
+    
+    // 筛选后的食材
+    private var filteredIngredients: [Ingredient] {
+        Array(ingredients).filter { ingredient in
+            filter.filter([ingredient]).contains(ingredient)
+        }
+    }
     
     var body: some View {
         TabView(selection: $selectedTab) {
@@ -31,12 +48,11 @@ struct ContentView: View {
                             .padding()
                     } else {
                         LazyVStack(spacing: 12) {
-                            ForEach(ingredients) { ingredient in
+                            ForEach(filteredIngredients, id: \.objectID) { ingredient in
                                 IngredientCard(ingredient: ingredient) {
                                     selectedIngredient = ingredient
                                     showingEditSheet = true
                                 }
-                                .id(ingredient.objectID)
                             }
                         }
                         .padding()
@@ -45,13 +61,20 @@ struct ContentView: View {
                 .navigationTitle("我的食材")
                 .toolbar {
                     ToolbarItem(placement: .navigationBarTrailing) {
-                        Button(action: { showingAddSheet = true }) {
-                            Label("添加食材", systemImage: "plus")
+                        HStack {
+                            Button(action: { showingCategoryCheckSheet = true }) {
+                                Label("检查类别", systemImage: "exclamationmark.triangle")
+                            }
+                            Button(action: { showingFilterSheet = true }) {
+                                Label("筛选", systemImage: "line.3.horizontal.decrease.circle")
+                            }
+                            Button(action: { showingAddSheet = true }) {
+                                Label("添加食材", systemImage: "plus")
+                            }
                         }
                     }
                 }
                 .onAppear {
-                    // 强制刷新视图
                     viewContext.refreshAllObjects()
                     isLoading = false
                 }
@@ -59,12 +82,24 @@ struct ContentView: View {
                     AddIngredientView(isPresented: $showingAddSheet)
                 }
                 .sheet(isPresented: $showingEditSheet) {
-                    if let ingredient = selectedIngredient {
-                        EditIngredientView(ingredient: ingredient)
-                            .environment(\.managedObjectContext, viewContext)
-                            .transition(.opacity.combined(with: .move(edge: .bottom)))
-                            .animation(.spring(response: 0.4, dampingFraction: 0.8), value: showingEditSheet)
+                    Group {
+                        if let ingredient = selectedIngredient {
+                            EditIngredientView(ingredient: ingredient)
+                                .environment(\.managedObjectContext, viewContext)
+                                .transition(.opacity.combined(with: .move(edge: .bottom)))
+                                .animation(.easeInOut(duration: 0.9), value: showingEditSheet)
+                        }
                     }
+                    .onDisappear {
+                        selectedIngredient = nil  // 清理选中的食材
+                    }
+                }
+                .sheet(isPresented: $showingFilterSheet) {
+                    IngredientFilterView(filter: $filter, categories: categories)
+                }
+                .sheet(isPresented: $showingCategoryCheckSheet) {
+                    IngredientCategoryCheckView()
+                        .environment(\.managedObjectContext, viewContext)
                 }
             }
             .tabItem {
@@ -72,13 +107,14 @@ struct ContentView: View {
             }
             .tag(0)
             
-            // 食谱标签页
-            RecipePlanningView()
-                .environment(\.managedObjectContext, viewContext)
-                .tabItem {
-                    Label("食谱", systemImage: "book")
-                }
-                .tag(1)
+            // 食谱规划标签页
+            NavigationView {
+                RecipePlanningView()
+            }
+            .tabItem {
+                Label("食谱", systemImage: "fork.knife")
+            }
+            .tag(1)
         }
     }
 }
@@ -89,10 +125,10 @@ struct IngredientCard: View {
     var onPress: () -> Void
     
     // 动画参数
-    private let animationDuration: Double = 0.3  // 动画持续时间减少到0.3秒
-    private let pressScale: Double = 0.97       // 保持缩放比例
-    private let springDamping: Double = 0.6     // 减小阻尼系数，让弹簧效果更快
-    private let springResponse: Double = 0.3    // 减小响应时间
+    private let animationDuration: Double = 0.15  // 减少动画持续时间
+    private let pressScale: Double = 0.98        // 调整缩放比例
+    private let springDamping: Double = 0.5      // 减小阻尼系数，让动画更快
+    private let springResponse: Double = 0.15    // 减小响应时间
     
     var body: some View {
         HStack(spacing: 16) {
@@ -185,7 +221,7 @@ struct IngredientCard: View {
     private var purchaseDaysText: String {
         guard let purchaseDate = ingredient.purchaseDate else { return "未记录购买日期" }
         let days = Calendar.current.dateComponents([.day], from: purchaseDate, to: Date()).day ?? 0
-        return "已购买\(days)天"
+        return days == 0 ? "今天购买" : "已购买\(days)天"
     }
     
     private var expiryDateText: String {

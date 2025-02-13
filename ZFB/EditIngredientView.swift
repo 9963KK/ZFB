@@ -86,7 +86,7 @@ struct EditIngredientView: View {
                             checkCategoryMatch(for: newName)
                         }
                     Picker("分类", selection: $category) {
-                        ForEach(IngredientIcon.categories, id: \.self) { category in
+                        ForEach(IngredientCategoryManager.shared.categories, id: \.self) { category in
                             Text(IngredientIcon.getCategoryWithIcon(for: category)).tag(category)
                         }
                     }
