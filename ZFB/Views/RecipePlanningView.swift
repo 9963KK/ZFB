@@ -105,6 +105,23 @@ struct ScrollOffsetPreferenceKey: PreferenceKey {
 
 // MARK: - RecipePlanningCell
 struct RecipePlanningCell: View {
+    @State private var isPressed = false
+    
+    // 难度等级枚举
+    enum Difficulty: String, CaseIterable {
+        case easy = "简单"
+        case medium = "中等"
+        case hard = "困难"
+        
+        var stars: String {
+            switch self {
+            case .easy: return "🌟"
+            case .medium: return "🌟🌟"
+            case .hard: return "🌟🌟🌟"
+            }
+        }
+    }
+    
     var body: some View {
         NavigationLink(destination: Text("食谱详情页")) {
             VStack(alignment: .leading, spacing: 12) {
@@ -131,13 +148,12 @@ struct RecipePlanningCell: View {
                     .font(.subheadline)
                     .foregroundColor(.gray)
                     
-                    HStack(spacing: 4) {
-                        Image(systemName: "star.fill")
-                            .foregroundColor(.yellow)
-                        Text("中等难度")
+                    HStack(spacing: 2) {
+                        Text(Difficulty.medium.stars)  // 使用难度等级的星星
+                        Text(Difficulty.medium.rawValue)
+                            .foregroundColor(.gray)
+                            .font(.subheadline)
                     }
-                    .font(.subheadline)
-                    .foregroundColor(.gray)
                 }
                 
                 // 第三行：标签
@@ -160,8 +176,21 @@ struct RecipePlanningCell: View {
             .background(Color(UIColor.systemBackground))
             .cornerRadius(12)
             .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
+            // 添加点击动画效果
+            .scaleEffect(isPressed ? 0.98 : 1.0)
+            .animation(.spring(response: 0.3, dampingFraction: 0.6), value: isPressed)
         }
         .buttonStyle(PlainButtonStyle())
+        // 添加手势识别
+        .simultaneousGesture(
+            DragGesture(minimumDistance: 0)
+                .onChanged { _ in
+                    isPressed = true
+                }
+                .onEnded { _ in
+                    isPressed = false
+                }
+        )
     }
 }
 

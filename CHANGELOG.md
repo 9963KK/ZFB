@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [1.1.2] - 2025-02-13
+
+### Added
+- 添加食谱难度等级系统
+  - 使用🌟符号表示难度等级（1-3颗星）
+  - 定义简单、中等、困难三个等级
+  - 优化难度显示样式
+
+### Changed
+- 改进食谱卡片交互体验
+  - 添加点击缩放动画效果
+  - 优化动画响应速度和弹性
+  - 改进视觉反馈效果
+
 ## [1.1.1] - 2025-02-13
 
 ### Changed
