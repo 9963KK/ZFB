@@ -106,6 +106,7 @@ struct ScrollOffsetPreferenceKey: PreferenceKey {
 // MARK: - RecipePlanningCell
 struct RecipePlanningCell: View {
     @State private var isPressed = false
+    @State private var isActive = false
     
     // 难度等级枚举
     enum Difficulty: String, CaseIterable {
@@ -123,7 +124,10 @@ struct RecipePlanningCell: View {
     }
     
     var body: some View {
-        NavigationLink(destination: Text("食谱详情页")) {
+        NavigationLink(
+            destination: Text("食谱详情页"),
+            isActive: $isActive
+        ) {
             VStack(alignment: .leading, spacing: 12) {
                 // 第一行：标题
                 Text("红烧排骨")
@@ -149,7 +153,7 @@ struct RecipePlanningCell: View {
                     .foregroundColor(.gray)
                     
                     HStack(spacing: 2) {
-                        Text(Difficulty.medium.stars)  // 使用难度等级的星星
+                        Text(Difficulty.medium.stars)
                         Text(Difficulty.medium.rawValue)
                             .foregroundColor(.gray)
                             .font(.subheadline)
@@ -176,12 +180,10 @@ struct RecipePlanningCell: View {
             .background(Color(UIColor.systemBackground))
             .cornerRadius(12)
             .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
-            // 添加点击动画效果
             .scaleEffect(isPressed ? 0.98 : 1.0)
             .animation(.spring(response: 0.3, dampingFraction: 0.6), value: isPressed)
         }
         .buttonStyle(PlainButtonStyle())
-        // 添加手势识别
         .simultaneousGesture(
             DragGesture(minimumDistance: 0)
                 .onChanged { _ in
@@ -189,6 +191,12 @@ struct RecipePlanningCell: View {
                 }
                 .onEnded { _ in
                     isPressed = false
+                    // 添加延迟导航
+                    withAnimation(.easeInOut(duration: 0.3)) {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+                            isActive = true
+                        }
+                    }
                 }
         )
     }

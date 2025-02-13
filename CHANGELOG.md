@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [1.1.3] - 2025-02-13
+
+### Changed
+- 优化食谱详情页导航动画
+  - 添加150ms的导航延迟
+  - 使用easeInOut动画过渡
+  - 改善整体交互流畅度
+
 ## [1.1.2] - 2025-02-13
 
 ### Added
