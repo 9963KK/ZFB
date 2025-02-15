@@ -99,10 +99,10 @@ class IngredientCategoryManager {
     ]
     
     // 主要类别列表
-    private let mainCategories = ["蔬菜", "水果", "肉类", "海鲜", "调味料", "蛋类", "乳制品", "坚果", "主食", "零食", "饮料"]
+    private let mainCategories = ["蔬菜", "水果", "肉类", "海鲜", "调味料", "蛋类", "乳制品", "坚果", "主食", "零食", "饮料", "其他"]
     
     // 获取食材的分类
-    func getCategory(for ingredient: String) -> String? {
+    func getCategory(for ingredient: String) -> String {
         // 先检查是否是主类别
         if mainCategories.contains(ingredient) {
             return ingredient
@@ -123,7 +123,7 @@ class IngredientCategoryManager {
             }
         }
         
-        return nil
+        return "其他"  // 默认返回"其他"类别
     }
     
     // 获取主要类别

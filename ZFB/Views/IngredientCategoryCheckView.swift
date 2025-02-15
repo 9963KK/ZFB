@@ -13,7 +13,7 @@ struct IngredientCategoryCheckView: View {
     private var uncategorizedIngredients: [Ingredient] {
         ingredients.filter { ingredient in
             guard let name = ingredient.name else { return false }
-            return IngredientCategoryManager.shared.getCategory(for: name) == nil
+            return IngredientCategoryManager.shared.getCategory(for: name) == "其他"
         }
     }
     

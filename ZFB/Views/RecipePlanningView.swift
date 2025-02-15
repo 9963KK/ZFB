@@ -1,5 +1,330 @@
 import SwiftUI
 
+// 食谱数据模型
+struct Recipe: Identifiable {
+    let id = UUID()
+    let name: String
+    let time: String
+    let servings: String
+    let difficulty: String
+    let tags: [String]
+}
+
+// 食谱卡片组件
+struct RecipeCard: View {
+    let recipe: Recipe
+    let onTap: () -> Void
+    @State private var isPressed = false
+    @State private var isDragging = false
+    @State private var pressStartTime: Date? = nil
+    @State private var pressStartLocation: CGPoint? = nil
+    @State private var dragOffset = CGSize.zero
+    
+    // 动画参数
+    private let animationDuration: Double = 0.15
+    private let pressScale: Double = 0.98
+    private let dragScale: Double = 1.05
+    private let springDamping: Double = 0.5
+    private let springResponse: Double = 0.15
+    
+    // 长按参数
+    private let longPressThreshold: TimeInterval = 1.2
+    private let moveThreshold: CGFloat = 30
+    
+    // 计算难度星级
+    private var difficultyStars: String {
+        switch recipe.difficulty {
+        case "简单": return "⭐️"
+        case "中等": return "⭐️⭐️"
+        case "困难": return "⭐️⭐️⭐️"
+        default: return "⭐️"
+        }
+    }
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            // 食谱名称
+            Text(recipe.name)
+                .font(.headline)
+                .foregroundColor(.primary)
+            
+            // 基本信息
+            HStack(spacing: 16) {
+                Label(recipe.time, systemImage: "clock")
+                Label(recipe.servings, systemImage: "person.2")
+                HStack(spacing: 4) {
+                    Text(difficultyStars)
+                        .font(.caption)
+                    Text(recipe.difficulty)
+                        .font(.subheadline)
+                }
+            }
+            .font(.subheadline)
+            .foregroundColor(.secondary)
+            
+            // 标签
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    ForEach(recipe.tags, id: \.self) { tag in
+                        Text(tag)
+                            .font(.caption)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(Color.blue.opacity(0.1))
+                            .foregroundColor(.blue)
+                            .cornerRadius(4)
+                    }
+                }
+            }
+        }
+        .padding()
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color(uiColor: .systemGray6))
+                .shadow(color: isDragging ? .black.opacity(0.15) : .black.opacity(0.05),
+                       radius: isDragging ? 8 : 2,
+                       x: 0,
+                       y: isDragging ? 4 : 1)
+        )
+        .scaleEffect(isDragging ? dragScale : (isPressed ? pressScale : 1.0))
+        .offset(dragOffset)
+        .animation(.spring(response: springResponse, dampingFraction: springDamping), value: isPressed)
+        .animation(.spring(response: 0.4, dampingFraction: 0.7), value: isDragging)
+        .animation(.spring(response: 0.4, dampingFraction: 0.7), value: dragOffset)
+        .gesture(
+            DragGesture(minimumDistance: 0)
+                .onChanged { value in
+                    if pressStartTime == nil {
+                        // 开始按压
+                        pressStartTime = Date()
+                        pressStartLocation = value.location
+                        withAnimation(.easeInOut(duration: animationDuration)) {
+                            isPressed = true
+                        }
+                    }
+                    
+                    let pressDuration = Date().timeIntervalSince(pressStartTime ?? Date())
+                    
+                    if pressDuration >= longPressThreshold {
+                        // 长按时间达到阈值，进入拖拽模式
+                        withAnimation {
+                            isDragging = true
+                            isPressed = false
+                        }
+                        // 更新拖拽偏移
+                        dragOffset = CGSize(
+                            width: value.translation.width,
+                            height: value.translation.height
+                        )
+                    } else if let startLocation = pressStartLocation {
+                        // 计算移动距离
+                        let moveDistance = sqrt(
+                            pow(value.location.x - startLocation.x, 2) +
+                            pow(value.location.y - startLocation.y, 2)
+                        )
+                        
+                        // 如果移动距离超过阈值，取消按压状态
+                        if moveDistance > moveThreshold {
+                            withAnimation(.easeInOut(duration: animationDuration)) {
+                                isPressed = false
+                            }
+                        }
+                    }
+                }
+                .onEnded { value in
+                    if isDragging {
+                        // 结束拖拽
+                        withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
+                            isDragging = false
+                            dragOffset = .zero
+                        }
+                        
+                        // 添加触觉反馈
+                        let generator = UIImpactFeedbackGenerator(style: .medium)
+                        generator.impactOccurred()
+                    } else if let startTime = pressStartTime,
+                              let startLocation = pressStartLocation {
+                        let pressDuration = Date().timeIntervalSince(startTime)
+                        let moveDistance = sqrt(
+                            pow(value.location.x - startLocation.x, 2) +
+                            pow(value.location.y - startLocation.y, 2)
+                        )
+                        
+                        withAnimation(.easeInOut(duration: animationDuration)) {
+                            isPressed = false
+                        }
+                        
+                        // 只有在移动距离小于阈值时才触发点击事件
+                        if moveDistance < moveThreshold {
+                            if pressDuration < longPressThreshold {
+                                // 短按
+                                onTap()
+                            }
+                        }
+                    }
+                    
+                    // 重置状态
+                    pressStartTime = nil
+                    pressStartLocation = nil
+                }
+        )
+    }
+}
+
+// 日历日期单元格
+struct CalendarDayCell: View {
+    let date: Date
+    let isSelected: Bool
+    let hasRecipe: Bool
+    
+    var body: some View {
+        VStack(spacing: 4) {
+            // 日期数字
+            Text("\(Calendar.current.component(.day, from: date))")
+                .font(.system(size: 16, weight: isSelected ? .bold : .regular))
+                .foregroundColor(isSelected ? .white : .primary)
+            
+            // 食谱指示点
+            if hasRecipe {
+                Circle()
+                    .fill(isSelected ? .white : .blue)
+                    .frame(width: 4, height: 4)
+            }
+        }
+        .frame(width: 36, height: 36)
+        .background(
+            Circle()
+                .fill(isSelected ? Color.blue : Color.clear)
+        )
+        .overlay(
+            Circle()
+                .stroke(isSelected ? Color.blue : Color.clear, lineWidth: 2)
+        )
+    }
+}
+
+// 自定义日历视图
+struct CustomCalendarView: View {
+    @Binding var selectedDate: Date
+    let onDateSelected: (Date) -> Void
+    
+    private let calendar = Calendar.current
+    private let daysInWeek = ["日", "一", "二", "三", "四", "五", "六"]
+    @State private var currentMonth: Date = Date()
+    
+    private var monthFormatter: DateFormatter {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy年M月"
+        return formatter
+    }
+    
+    private var weeks: [[Date]] {
+        let interval = calendar.dateInterval(of: .month, for: currentMonth)!
+        let firstDay = interval.start
+        
+        let firstWeekday = calendar.component(.weekday, from: firstDay)
+        let daysToAdd = firstWeekday - 1
+        
+        let firstDateOfGrid = calendar.date(byAdding: .day, value: -daysToAdd, to: firstDay)!
+        
+        var weeks: [[Date]] = []
+        var currentWeek: [Date] = []
+        
+        // 生成6周的日期
+        for dayOffset in 0..<42 {
+            let date = calendar.date(byAdding: .day, value: dayOffset, to: firstDateOfGrid)!
+            currentWeek.append(date)
+            
+            if currentWeek.count == 7 {
+                weeks.append(currentWeek)
+                currentWeek = []
+            }
+        }
+        
+        return weeks
+    }
+    
+    var body: some View {
+        VStack(spacing: 12) {
+            // 月份导航栏
+            HStack {
+                Button(action: previousMonth) {
+                    Image(systemName: "chevron.left")
+                        .foregroundColor(.blue)
+                }
+                
+                Text(monthFormatter.string(from: currentMonth))
+                    .font(.headline)
+                    .frame(maxWidth: .infinity)
+                
+                Button(action: nextMonth) {
+                    Image(systemName: "chevron.right")
+                        .foregroundColor(.blue)
+                }
+            }
+            .padding(.horizontal)
+            
+            // 星期标题行
+            HStack {
+                ForEach(daysInWeek, id: \.self) { day in
+                    Text(day)
+                        .font(.system(size: 12, weight: .medium))
+                        .frame(maxWidth: .infinity)
+                        .foregroundColor(.secondary)
+                }
+            }
+            .padding(.horizontal, 8)
+            
+            // 日期网格
+            VStack(spacing: 8) {
+                ForEach(weeks, id: \.self) { week in
+                    HStack(spacing: 0) {
+                        ForEach(week, id: \.self) { date in
+                            CalendarDayCell(
+                                date: date,
+                                isSelected: calendar.isDate(date, inSameDayAs: selectedDate),
+                                hasRecipe: hasRecipeForDate(date)
+                            )
+                            .frame(maxWidth: .infinity)
+                            .onTapGesture {
+                                withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                                    selectedDate = date
+                                    onDateSelected(date)
+                                }
+                            }
+                            .opacity(calendar.isDate(date, equalTo: currentMonth, toGranularity: .month) ? 1 : 0.3)
+                        }
+                    }
+                }
+            }
+            .padding(.horizontal, 8)
+        }
+        .padding(.vertical)
+        .background(Color(uiColor: .systemBackground))
+        .cornerRadius(16)
+        .shadow(color: Color.black.opacity(0.05), radius: 10, x: 0, y: 2)
+    }
+    
+    private func previousMonth() {
+        withAnimation {
+            currentMonth = calendar.date(byAdding: .month, value: -1, to: currentMonth)!
+        }
+    }
+    
+    private func nextMonth() {
+        withAnimation {
+            currentMonth = calendar.date(byAdding: .month, value: 1, to: currentMonth)!
+        }
+    }
+    
+    // 判断某一天是否有食谱
+    private func hasRecipeForDate(_ date: Date) -> Bool {
+        // TODO: 实现判断逻辑
+        return false
+    }
+}
+
 struct RecipePlanningView: View {
     // MARK: - Properties
     @Environment(\.managedObjectContext) private var viewContext
@@ -7,35 +332,32 @@ struct RecipePlanningView: View {
     @State private var showingAddRecipe = false
     @State private var selectedMealTime = 0
     @State private var showingFilters = false
-    @State private var calendarHeight: CGFloat = 300
-    @State private var scrollOffset: CGFloat = 0
     @State private var isCalendarVisible = true
-    @State private var showingDetail = false
-    @State private var selectedRecipe: (name: String, time: String, servings: String, difficulty: String, tags: [String])?
+    @State private var selectedRecipe: Recipe?
     
     private let mealTimes = ["早餐", "午餐", "晚餐"]
     private let calendar = Calendar.current
     
     // 模拟不同餐点的食谱数据
-    private var recipesForSelectedMeal: [(name: String, time: String, servings: String, difficulty: String, tags: [String])] {
+    private var recipesForSelectedMeal: [Recipe] {
         switch selectedMealTime {
         case 0: // 早餐
             return [
-                ("皮蛋瘦肉粥", "30分钟", "2人份", "简单", ["粥类", "热门"]),
-                ("三明治", "15分钟", "2人份", "简单", ["面包", "快手"]),
-                ("煎饺", "20分钟", "3人份", "简单", ["家常菜", "热门"])
+                Recipe(name: "皮蛋瘦肉粥", time: "30分钟", servings: "2人份", difficulty: "简单", tags: ["粥类", "热门"]),
+                Recipe(name: "三明治", time: "15分钟", servings: "2人份", difficulty: "简单", tags: ["面包", "快手"]),
+                Recipe(name: "煎饺", time: "20分钟", servings: "3人份", difficulty: "简单", tags: ["家常菜", "热门"])
             ]
         case 1: // 午餐
             return [
-                ("红烧排骨", "45分钟", "4人份", "中等", ["家常菜", "热门", "肉类"]),
-                ("清炒小白菜", "20分钟", "4人份", "简单", ["素菜", "快手"]),
-                ("番茄炒蛋", "15分钟", "3人份", "简单", ["家常菜", "快手"])
+                Recipe(name: "红烧排骨", time: "45分钟", servings: "4人份", difficulty: "中等", tags: ["家常菜", "热门", "肉类"]),
+                Recipe(name: "清炒小白菜", time: "20分钟", servings: "4人份", difficulty: "简单", tags: ["素菜", "快手"]),
+                Recipe(name: "番茄炒蛋", time: "15分钟", servings: "3人份", difficulty: "简单", tags: ["家常菜", "快手"])
             ]
         case 2: // 晚餐
             return [
-                ("水煮鱼", "40分钟", "4人份", "困难", ["川菜", "热门", "海鲜"]),
-                ("宫保鸡丁", "35分钟", "4人份", "中等", ["川菜", "热门", "肉类"]),
-                ("蒜蓉炒菜心", "15分钟", "4人份", "简单", ["素菜", "快手"])
+                Recipe(name: "水煮鱼", time: "40分钟", servings: "4人份", difficulty: "困难", tags: ["川菜", "热门", "海鲜"]),
+                Recipe(name: "宫保鸡丁", time: "35分钟", servings: "4人份", difficulty: "中等", tags: ["川菜", "热门", "肉类"]),
+                Recipe(name: "蒜蓉炒菜心", time: "15分钟", servings: "4人份", difficulty: "简单", tags: ["素菜", "快手"])
             ]
         default:
             return []
@@ -110,19 +432,14 @@ struct RecipePlanningView: View {
     // MARK: - Body
     var body: some View {
         VStack(spacing: 0) {
-            // 日历视图
+            // 新的日历视图
             if isCalendarVisible {
-                VStack {
-                    DatePicker(
-                        "选择日期",
-                        selection: $selectedDate,
-                        displayedComponents: [.date]
-                    )
-                    .datePickerStyle(.graphical)
-                    .padding()
+                CustomCalendarView(selectedDate: $selectedDate) { date in
+                    // 处理日期选择
+                    print("选择日期: \(date)")
                 }
-                .frame(height: max(0, calendarHeight - scrollOffset))
-                .clipped()
+                .padding(.horizontal)
+                .transition(.move(edge: .top).combined(with: .opacity))
             }
             
             // 餐点时间选择
@@ -133,53 +450,27 @@ struct RecipePlanningView: View {
             }
             .pickerStyle(.segmented)
             .padding()
-            .background(Color(UIColor.systemBackground))
             
             // 食谱列表
             ScrollView {
-                GeometryReader { geometry in
-                    Color.clear.preference(key: ScrollOffsetPreferenceKey.self,
-                        value: geometry.frame(in: .named("scroll")).minY)
-                }
-                .frame(height: 0)
-                
-                LazyVStack(spacing: 12) {
-                    ForEach(recipesForSelectedMeal, id: \.name) { recipe in
-                        RecipePlanningCell(
-                            name: recipe.name,
-                            time: recipe.time,
-                            servings: recipe.servings,
-                            difficulty: recipe.difficulty,
-                            tags: recipe.tags,
-                            onTap: {
+                LazyVStack(spacing: 16) {
+                    ForEach(recipesForSelectedMeal) { recipe in
+                        RecipeCard(recipe: recipe) {
+                            withAnimation {
                                 selectedRecipe = recipe
-                                showingDetail = true
                             }
-                        )
+                        }
+                        .padding(.horizontal)
                     }
                 }
-                .padding()
-                .id(selectedMealTime)
-            }
-            .coordinateSpace(name: "scroll")
-            .onPreferenceChange(ScrollOffsetPreferenceKey.self) { offset in
-                let newOffset = -offset
-                if newOffset > 0 {
-                    withAnimation {
-                        isCalendarVisible = false
-                    }
-                } else if newOffset < -20 {
-                    withAnimation {
-                        isCalendarVisible = true
-                    }
-                }
+                .padding(.vertical)
             }
         }
         .navigationTitle("食谱规划")
         .navigationBarItems(
             trailing: HStack {
                 Button(action: {
-                    withAnimation {
+                    withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
                         isCalendarVisible.toggle()
                     }
                 }) {
@@ -187,124 +478,17 @@ struct RecipePlanningView: View {
                 }
             }
         )
-        .sheet(isPresented: $showingDetail) {
-            Group {
-                if let recipe = selectedRecipe {
-                    RecipeDetailView(
-                        recipeName: recipe.name,
-                        difficulty: recipe.difficulty == "简单" ? 1 : recipe.difficulty == "中等" ? 3 : 5,
-                        cookingTime: Int(recipe.time.replacingOccurrences(of: "分钟", with: "")) ?? 0,
-                        ingredients: getIngredientsForRecipe(recipe.name),
-                        steps: getStepsForRecipe(recipe.name)
-                    )
-                }
-            }
-            .onDisappear {
-                selectedRecipe = nil  // 清理选中的食谱
-            }
+        .sheet(item: $selectedRecipe) { recipe in
+            RecipeDetailView(recipe: recipe)
         }
     }
-}
-
-// MARK: - RecipePlanningCell
-struct RecipePlanningCell: View {
-    let name: String
-    let time: String
-    let servings: String
-    let difficulty: String
-    let tags: [String]
-    let onTap: () -> Void
-    @State private var isPressed = false
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            // 第一行：标题
-            Text(name)
-                .font(.title3)
-                .fontWeight(.medium)
-            
-            // 第二行：时间和难度
-            HStack(spacing: 16) {
-                HStack(spacing: 4) {
-                    Image(systemName: "clock")
-                        .foregroundColor(.gray)
-                    Text(time)
-                }
-                .font(.subheadline)
-                .foregroundColor(.gray)
-                
-                HStack(spacing: 4) {
-                    Image(systemName: "person.2")
-                        .foregroundColor(.gray)
-                    Text(servings)
-                }
-                .font(.subheadline)
-                .foregroundColor(.gray)
-                
-                HStack(spacing: 2) {
-                    Text(difficulty == "简单" ? "⭐️" : difficulty == "中等" ? "⭐️⭐️" : "⭐️⭐️⭐️")
-                    Text(difficulty)
-                        .foregroundColor(.gray)
-                        .font(.subheadline)
-                }
-            }
-            
-            // 第三行：标签
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 8) {
-                    ForEach(tags, id: \.self) { tag in
-                        Text(tag)
-                            .font(.caption)
-                            .padding(.horizontal, 10)
-                            .padding(.vertical, 5)
-                            .background(Color.blue.opacity(0.1))
-                            .foregroundColor(.blue)
-                            .cornerRadius(15)
-                    }
-                }
-            }
-        }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 12)
-        .background(Color(UIColor.systemBackground))
-        .cornerRadius(12)
-        .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
-        .scaleEffect(isPressed ? 0.98 : 1.0)
-        .animation(.spring(response: 0.15, dampingFraction: 0.5), value: isPressed)
-        .onTapGesture {
-            onTap()
-        }
-        .gesture(
-            DragGesture(minimumDistance: 0)
-                .onChanged { _ in
-                    isPressed = true
-                }
-                .onEnded { _ in
-                    isPressed = false
-                    onTap()
-                }
-        )
-    }
-}
-
-// MARK: - ScrollOffsetPreferenceKey
-struct ScrollOffsetPreferenceKey: PreferenceKey {
-    static var defaultValue: CGFloat = 0
-    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
-        value = nextValue()
-    }
-}
-
-// MARK: - Recipe Model
-struct Recipe {
-    let name: String
-    let difficulty: Int
-    let cookingTime: Int
 }
 
 // MARK: - Preview
 struct RecipePlanningView_Previews: PreviewProvider {
     static var previews: some View {
-        RecipePlanningView()
+        NavigationView {
+            RecipePlanningView()
+        }
     }
 }

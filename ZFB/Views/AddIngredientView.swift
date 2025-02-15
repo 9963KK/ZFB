@@ -19,6 +19,8 @@ struct AddIngredientView: View {
     @State private var alertMessage = ""
     @State private var showingCategoryMismatchAlert = false
     @State private var suggestedCategory: String?
+    @State private var showingCategoryPicker = false
+    @FocusState private var isNameFieldFocused: Bool
     
     // 整数单位列表
     private let integerUnits = ["个", "颗", "把", "包"]
@@ -44,15 +46,37 @@ struct AddIngredientView: View {
         NavigationView {
             Form {
                 Section(header: Text("基本信息")) {
-                    TextField("名称", text: $name)
-                        .onSubmit {
-                            checkCategoryMatch(for: name)
+                    HStack(spacing: 12) {
+                        TextField("名称", text: $name)
+                            .onChange(of: name) { newName in
+                                // 当输入内容变化时，不做检查
+                            }
+                            .onSubmit {
+                                checkCategory()
+                            }
+                            .focused($isNameFieldFocused)
+                            .submitLabel(.done)
+                        
+                        HStack(spacing: 4) {
+                            Text("分类")
+                                .foregroundColor(.secondary)
+                            Picker("", selection: $category) {
+                                ForEach(IngredientCategoryManager.shared.categories, id: \.self) { cat in
+                                    Text("\(IngredientIcon.getIcon(for: cat)) \(cat)")
+                                        .tag(cat)
+                                        .lineLimit(1)
+                                        .fixedSize()
+                                }
+                            }
+                            .pickerStyle(MenuPickerStyle())
+                            .labelsHidden()
                         }
-                        .submitLabel(.done)
-                    
-                    Picker("分类", selection: $category) {
-                        ForEach(IngredientCategoryManager.shared.categories, id: \.self) { category in
-                            Text(IngredientIcon.getCategoryWithIcon(for: category)).tag(category)
+                        .frame(width: 150)
+                    }
+                    .onChange(of: isNameFieldFocused) { isFocused in
+                        if !isFocused && !name.isEmpty {
+                            // 当输入框失去焦点且内容不为空时检查类别
+                            checkCategory()
                         }
                     }
                     
@@ -156,58 +180,62 @@ struct AddIngredientView: View {
                 }
                 Button("保持现有类别", role: .cancel) {}
             } message: {
-                Text("检测到\"\(name)\"可能属于\"\(suggestedCategory ?? "")\"类别，是否要更新？")
+                if suggestedCategory == "其他" {
+                    Text("这是一个新的食材类别，建议将其标记为待分类。是否将\"\(name)\"设置为\"其他\"类别？")
+                } else {
+                    Text("检测到\"\(name)\"可能属于\"\(suggestedCategory ?? "")\"类别，是否要更新？")
+                }
             }
         }
     }
     
     private func saveIngredient() {
-        // 检查是否存在重复的食材名称
         let fetchRequest: NSFetchRequest<Ingredient> = Ingredient.fetchRequest()
-        fetchRequest.predicate = NSPredicate(format: "name ==[c] %@", name)
+        fetchRequest.predicate = NSPredicate(format: "name == %@", name)
         
         do {
-            let matchingIngredients = try viewContext.fetch(fetchRequest)
-            if !matchingIngredients.isEmpty {
+            let duplicates = try viewContext.fetch(fetchRequest)
+            if !duplicates.isEmpty {
+                alertMessage = "该食材已存在"
                 showingAlert = true
-                alertMessage = "已经存在相同名称的食材"
+                name = ""
+                category = "蔬菜"
                 return
             }
             
-            let ingredient = Ingredient(context: viewContext)
-            ingredient.name = name
-            ingredient.category = category
-            ingredient.quantity = Double(quantity) ?? 0
-            ingredient.unit = unit
-            ingredient.purchaseDate = purchaseDate
-            ingredient.expiryDate = expiryDate
-            ingredient.notes = notes
+            let newIngredient = Ingredient(context: viewContext)
+            newIngredient.name = name
+            newIngredient.category = category
+            newIngredient.quantity = Double(quantity) ?? 0
+            newIngredient.unit = unit
+            newIngredient.purchaseDate = purchaseDate
+            newIngredient.expiryDate = expiryDate
+            newIngredient.notes = notes
             
-            if let inputImage = inputImage {
-                ingredient.imageData = inputImage.jpegData(compressionQuality: 0.8)
+            if let imageData = inputImage?.jpegData(compressionQuality: 0.8) {
+                newIngredient.imageData = imageData
             }
             
-            do {
-                try viewContext.save()
-                dismiss()
-            } catch {
-                let nsError = error as NSError
-                print("保存食材失败: \(nsError)")
-            }
+            try viewContext.save()
+            dismiss()
         } catch {
-            print("检查重复食材失败: \(error)")
+            alertMessage = "保存失败: \(error.localizedDescription)"
+            showingAlert = true
         }
     }
     
-    private func checkCategoryMatch(for ingredientName: String) {
-        // 如果食材名称为空，不进行检查
-        guard !ingredientName.isEmpty else { return }
-        
-        // 获取建议的类别
-        if let suggestedCat = IngredientCategoryManager.shared.getCategory(for: ingredientName),
-           suggestedCat != category {
-            suggestedCategory = suggestedCat
-            showingCategoryMismatchAlert = true
+    private func checkCategory() {
+        if !name.isEmpty {
+            let suggestedCat = IngredientCategoryManager.shared.getCategory(for: name)
+            if suggestedCat == "其他" {
+                // 如果是新的食材（被归类为"其他"），显示提示
+                suggestedCategory = "其他"
+                showingCategoryMismatchAlert = true
+            } else if suggestedCat != category {
+                // 如果有建议的其他分类，显示建议
+                suggestedCategory = suggestedCat
+                showingCategoryMismatchAlert = true
+            }
         }
     }
 }

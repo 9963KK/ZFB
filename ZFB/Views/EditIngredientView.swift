@@ -22,6 +22,7 @@ struct EditIngredientView: View {
     @State private var showingDuplicateAlert = false
     @State private var suggestedCategory: String?
     @State private var showingDeleteAlert = false
+    @State private var showingCategoryPicker = false
     
     // 保存原始值用于撤销
     private let originalName: String
@@ -80,17 +81,30 @@ struct EditIngredientView: View {
         NavigationView {
             Form {
                 Section(header: Text("基本信息")) {
-                    TextField("名称", text: $name)
-                        .onChange(of: name) { newName in
-                            checkForChanges()
-                            checkCategoryMatch(for: newName)
+                    HStack(spacing: 12) {
+                        TextField("名称", text: $name)
+                            .onChange(of: name) { newName in
+                                checkForChanges()
+                                checkCategoryMatch(for: newName)
+                            }
+                        
+                        HStack(spacing: 4) {
+                            Text("分类")
+                                .foregroundColor(.secondary)
+                            Picker("", selection: $category) {
+                                ForEach(IngredientCategoryManager.shared.categories, id: \.self) { cat in
+                                    Text("\(IngredientIcon.getIcon(for: cat)) \(cat)")
+                                        .tag(cat)
+                                        .lineLimit(1)
+                                        .fixedSize()
+                                }
+                            }
+                            .pickerStyle(MenuPickerStyle())
+                            .labelsHidden()
+                            .onChange(of: category) { _ in checkForChanges() }
                         }
-                    Picker("分类", selection: $category) {
-                        ForEach(IngredientCategoryManager.shared.categories, id: \.self) { category in
-                            Text(IngredientIcon.getCategoryWithIcon(for: category)).tag(category)
-                        }
+                        .frame(width: 150)
                     }
-                    .onChange(of: category) { _ in checkForChanges() }
                     
                     HStack {
                         if isIntegerUnit {
@@ -345,8 +359,8 @@ struct EditIngredientView: View {
         guard !ingredientName.isEmpty else { return }
         
         // 获取建议的类别
-        if let suggestedCat = IngredientCategoryManager.shared.getCategory(for: ingredientName),
-           suggestedCat != category {
+        let suggestedCat = IngredientCategoryManager.shared.getCategory(for: ingredientName)
+        if suggestedCat != category && suggestedCat != "其他" {
             suggestedCategory = suggestedCat
             showingCategoryMismatchAlert = true
         }

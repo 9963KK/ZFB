@@ -37,6 +37,13 @@ struct ContentView: View {
         }
     }
     
+    private func showIngredientEdit(_ ingredient: Ingredient) {
+        // 确保数据已经加载
+        viewContext.refresh(ingredient, mergeChanges: true)
+        selectedIngredient = ingredient
+        showingEditSheet = true
+    }
+    
     var body: some View {
         TabView(selection: $selectedTab) {
             // 食材标签页
@@ -50,8 +57,7 @@ struct ContentView: View {
                         LazyVStack(spacing: 12) {
                             ForEach(filteredIngredients, id: \.objectID) { ingredient in
                                 IngredientCard(ingredient: ingredient) {
-                                    selectedIngredient = ingredient
-                                    showingEditSheet = true
+                                    showIngredientEdit(ingredient)
                                 }
                             }
                         }
@@ -86,12 +92,7 @@ struct ContentView: View {
                         if let ingredient = selectedIngredient {
                             EditIngredientView(ingredient: ingredient)
                                 .environment(\.managedObjectContext, viewContext)
-                                .transition(.opacity.combined(with: .move(edge: .bottom)))
-                                .animation(.easeInOut(duration: 0.9), value: showingEditSheet)
                         }
-                    }
-                    .onDisappear {
-                        selectedIngredient = nil  // 清理选中的食材
                     }
                 }
                 .sheet(isPresented: $showingFilterSheet) {
@@ -122,13 +123,22 @@ struct ContentView: View {
 struct IngredientCard: View {
     @ObservedObject var ingredient: Ingredient
     @State private var isPressed = false
+    @State private var isDragging = false
+    @State private var pressStartTime: Date? = nil
+    @State private var pressStartLocation: CGPoint? = nil
+    @State private var dragOffset = CGSize.zero
     var onPress: () -> Void
     
     // 动画参数
-    private let animationDuration: Double = 0.15  // 减少动画持续时间
-    private let pressScale: Double = 0.98        // 调整缩放比例
-    private let springDamping: Double = 0.5      // 减小阻尼系数，让动画更快
-    private let springResponse: Double = 0.15    // 减小响应时间
+    private let animationDuration: Double = 0.15
+    private let pressScale: Double = 0.98
+    private let dragScale: Double = 1.05
+    private let springDamping: Double = 0.5
+    private let springResponse: Double = 0.15
+    
+    // 长按参数
+    private let longPressThreshold: TimeInterval = 1.2
+    private let moveThreshold: CGFloat = 30
     
     var body: some View {
         HStack(spacing: 16) {
@@ -145,7 +155,8 @@ struct IngredientCard: View {
                         .scaledToFill()
                         .frame(width: 50, height: 50)
                         .clipShape(Circle())
-                } else if let emoji = IngredientEmojiManager.shared.getEmoji(for: ingredient.name ?? "") {
+                } else if let name = ingredient.name,
+                          let emoji = IngredientEmojiManager.shared.getEmoji(for: name) {
                     Text(emoji)
                         .font(.system(size: 40))
                 } else {
@@ -198,24 +209,92 @@ struct IngredientCard: View {
         .padding(16)
         .background(Color(.systemBackground))
         .cornerRadius(12)
-        .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
-        .scaleEffect(isPressed ? pressScale : 1.0)
+        .shadow(color: isDragging ? .black.opacity(0.15) : .black.opacity(0.1),
+               radius: isDragging ? 8 : 5,
+               x: 0,
+               y: isDragging ? 4 : 2)
+        .scaleEffect(isDragging ? dragScale : (isPressed ? pressScale : 1.0))
+        .offset(dragOffset)
         .animation(.spring(response: springResponse, dampingFraction: springDamping), value: isPressed)
-        .onTapGesture {
-            withAnimation {
-                isPressed = true
-                // 延长按下状态的时间
-                DispatchQueue.main.asyncAfter(deadline: .now() + animationDuration) {
-                    withAnimation(.spring(response: springResponse, dampingFraction: springDamping)) {
-                        isPressed = false
+        .animation(.spring(response: 0.4, dampingFraction: 0.7), value: isDragging)
+        .animation(.spring(response: 0.4, dampingFraction: 0.7), value: dragOffset)
+        .gesture(
+            DragGesture(minimumDistance: 0)
+                .onChanged { value in
+                    if pressStartTime == nil {
+                        // 开始按压
+                        pressStartTime = Date()
+                        pressStartLocation = value.location
+                        withAnimation(.easeInOut(duration: animationDuration)) {
+                            isPressed = true
+                        }
                     }
-                    // 等动画完全结束后再触发回调
-                    DispatchQueue.main.asyncAfter(deadline: .now() + springResponse) {
-                        onPress()
+                    
+                    let pressDuration = Date().timeIntervalSince(pressStartTime ?? Date())
+                    
+                    if pressDuration >= longPressThreshold {
+                        // 长按时间达到阈值，进入拖拽模式
+                        withAnimation {
+                            isDragging = true
+                            isPressed = false
+                        }
+                        // 更新拖拽偏移
+                        dragOffset = CGSize(
+                            width: value.translation.width,
+                            height: value.translation.height
+                        )
+                    } else if let startLocation = pressStartLocation {
+                        // 计算移动距离
+                        let moveDistance = sqrt(
+                            pow(value.location.x - startLocation.x, 2) +
+                            pow(value.location.y - startLocation.y, 2)
+                        )
+                        
+                        // 如果移动距离超过阈值，取消按压状态
+                        if moveDistance > moveThreshold {
+                            withAnimation(.easeInOut(duration: animationDuration)) {
+                                isPressed = false
+                            }
+                        }
                     }
                 }
-            }
-        }
+                .onEnded { value in
+                    if isDragging {
+                        // 结束拖拽
+                        withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
+                            isDragging = false
+                            dragOffset = .zero
+                        }
+                        
+                        // 添加触觉反馈
+                        let generator = UIImpactFeedbackGenerator(style: .medium)
+                        generator.impactOccurred()
+                    } else if let startTime = pressStartTime,
+                              let startLocation = pressStartLocation {
+                        let pressDuration = Date().timeIntervalSince(startTime)
+                        let moveDistance = sqrt(
+                            pow(value.location.x - startLocation.x, 2) +
+                            pow(value.location.y - startLocation.y, 2)
+                        )
+                        
+                        withAnimation(.easeInOut(duration: animationDuration)) {
+                            isPressed = false
+                        }
+                        
+                        // 只有在移动距离小于阈值时才触发点击事件
+                        if moveDistance < moveThreshold {
+                            if pressDuration < longPressThreshold {
+                                // 短按
+                                onPress()
+                            }
+                        }
+                    }
+                    
+                    // 重置状态
+                    pressStartTime = nil
+                    pressStartLocation = nil
+                }
+        )
     }
     
     private var purchaseDaysText: String {

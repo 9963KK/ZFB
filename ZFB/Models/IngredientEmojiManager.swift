@@ -5,7 +5,28 @@ class IngredientEmojiManager {
     
     // 预定义的食材emoji映射
     private var emojiMap: [String: String] = [
-        // 水果
+        // 主食类
+        "大米": "🍚",
+        "糯米": "🍚",
+        "小米": "🌾",
+        "面条": "🍜",
+        "面包": "🍞",
+        "馒头": "🍞",
+        "饺子": "🥟",
+        "包子": "🍞",
+        "花卷": "🥖",
+        "油条": "🥖",
+        "年糕": "🍘",
+        "粽子": "🍙",
+        "三明治": "🥪",
+        "汉堡": "🍔",
+        "披萨": "🍕",
+        "寿司": "🍱",
+        "春卷": "🥢",
+        "炒饭": "🍚",
+        "炒面": "🍜",
+        
+        // 水果类
         "苹果": "🍎",
         "青苹果": "🍏",
         "橘子": "🍊",
@@ -20,15 +41,20 @@ class IngredientEmojiManager {
         "樱桃": "🍒",
         "蓝莓": "🫐",
         "椰子": "🥥",
-        "火龙果": "🐉",
+        "火龙果": "🥝",
         "猕猴桃": "🥝",
         "菠萝": "🍍",
         "柚子": "🍊",
         "石榴": "🫐",
         "山竹": "🫐",
+        "芒果": "🥭",
+        "榴莲": "🥝",
+        "木瓜": "🥝",
+        "枣": "🫐",
         "无花果": "🫐",
+        "百香果": "🥝",
         
-        // 蔬菜
+        // 蔬菜类
         "胡萝卜": "🥕",
         "西兰花": "🥦",
         "茄子": "🍆",
@@ -63,7 +89,12 @@ class IngredientEmojiManager {
         "山药": "🥔",
         "莲藕": "🥔",
         
-        // 肉类和蛋
+        // 豆制品
+        "豆腐": "🧊",
+        "豆干": "🧊",
+        "腐竹": "🧊",
+        
+        // 肉类
         // 猪肉系列
         "猪肉": "🐷",
         "五花肉": "🥓",
@@ -112,7 +143,7 @@ class IngredientEmojiManager {
         "羊肚": "🐑",
         "羊骨": "🍖",
         
-        // 鸡肉系列
+        // 禽类
         "鸡肉": "🐔",
         "鸡胸肉": "🍗",
         "鸡翅": "🍗",
@@ -126,7 +157,6 @@ class IngredientEmojiManager {
         "童子鸡": "🐔",
         "三黄鸡": "🐔",
         
-        // 鸭肉系列
         "鸭肉": "🦆",
         "鸭胸肉": "🦆",
         "鸭腿": "🦆",
@@ -136,14 +166,13 @@ class IngredientEmojiManager {
         "鸭胗": "🦆",
         "北京烤鸭": "🦆",
         
-        // 鹅肉系列
         "鹅肉": "🦢",
         "鹅胸肉": "🦢",
         "鹅腿": "🦢",
         "鹅肝": "🦢",
         "鹅翅": "🦢",
         
-        // 兔肉系列
+        // 其他肉类
         "兔肉": "🐰",
         "兔腿": "🐰",
         "兔里脊": "🐰",
@@ -168,7 +197,7 @@ class IngredientEmojiManager {
         "咸鸭蛋": "🥚",
         "鹌鹑蛋": "🥚",
         
-        // 海鲜
+        // 海鲜类
         "虾": "🦐",
         "龙虾": "🦞",
         "螃蟹": "🦀",
@@ -186,41 +215,28 @@ class IngredientEmojiManager {
         "海带": "🌿",
         "紫菜": "🌿",
         
-        // 主食
-        "面包": "🍞",
-        "米饭": "🍚",
-        "面条": "🍜",
-        "饺子": "🥟",
-        "馒头": "🍞",
-        "包子": "🥟",
-        "三明治": "🥪",
-        "汉堡": "🍔",
-        "披萨": "🍕",
-        "粽子": "🍙",
-        "寿司": "🍱",
-        "春卷": "🥢",
-        "炒饭": "🍚",
-        "炒面": "🍜",
-        
         // 乳制品
         "牛奶": "🥛",
-        "奶酪": "🧀",
-        "黄油": "🧈",
         "酸奶": "🥛",
         "奶油": "🧈",
+        "黄油": "🧈",
+        "奶酪": "🧀",
         "芝士": "🧀",
         
         // 调味料
         "盐": "🧂",
-        "糖": "🍯",
-        "酱油": "🫗",
-        "醋": "🫗",
+        "糖": "🧂",
+        "胡椒": "🧂",
+        "酱油": "🫙",
+        "醋": "🫙",
         "料酒": "🍶",
-        "花椒": "🌶️",
-        "八角": "⭐️",
-        "辣椒粉": "🌶️",
-        "蒜粉": "🧄",
+        "蒜": "🧄",
         "姜": "🫚",
+        "辣椒粉": "🌶️",
+        "花椒": "🫘",
+        "八角": "⭐️",
+        "桂皮": "🌳",
+        "香叶": "🍃",
         "芝麻": "⚫️",
         "芥末": "🟡",
         "番茄酱": "🍅",
@@ -253,12 +269,12 @@ class IngredientEmojiManager {
         "瓜子": "🌱",
         "果冻": "🫘",
         
-        // 饮料
-        "咖啡": "☕️",
+        // 饮品
         "茶": "🫖",
-        "啤酒": "🍺",
-        "果汁": "🧃",
+        "咖啡": "☕️",
         "可乐": "🥤",
+        "果汁": "🧃",
+        "啤酒": "🍺",
         "红酒": "🍷",
         "白酒": "🥃",
         "奶茶": "🧋",
@@ -270,10 +286,13 @@ class IngredientEmojiManager {
     private let userDefaultsKey = "CustomIngredientEmojis"
     
     private init() {
-        loadCustomEmojis()
+        // 从 UserDefaults 加载自定义表情符号
+        if let savedEmojis = UserDefaults.standard.dictionary(forKey: userDefaultsKey) as? [String: String] {
+            emojiMap.merge(savedEmojis) { (_, new) in new }
+        }
     }
     
-    // 获取食材对应的emoji
+    // 获取食材的表情符号
     func getEmoji(for ingredient: String) -> String? {
         // 移除空格并转换为小写进行匹配
         let normalizedName = ingredient.trimmingCharacters(in: .whitespaces).lowercased()
@@ -293,32 +312,26 @@ class IngredientEmojiManager {
         return nil
     }
     
-    // 添加自定义emoji映射
-    func addCustomEmoji(ingredient: String, emoji: String) {
+    // 添加或更新自定义表情符号
+    func setEmoji(_ emoji: String, for ingredient: String) {
         emojiMap[ingredient] = emoji
         saveCustomEmojis()
     }
     
-    // 删除自定义emoji映射
-    func removeCustomEmoji(ingredient: String) {
-        emojiMap.removeValue(forKey: ingredient)
-        saveCustomEmojis()
-    }
-    
-    // 获取所有映射
-    func getAllMappings() -> [String: String] {
-        return emojiMap
-    }
-    
-    // 保存自定义emoji到UserDefaults
+    // 保存自定义表情符号到 UserDefaults
     private func saveCustomEmojis() {
         UserDefaults.standard.set(emojiMap, forKey: userDefaultsKey)
     }
     
-    // 从UserDefaults加载自定义emoji
-    private func loadCustomEmojis() {
-        if let savedEmojis = UserDefaults.standard.dictionary(forKey: userDefaultsKey) as? [String: String] {
-            emojiMap.merge(savedEmojis) { (_, new) in new }
+    // 获取所有食材
+    var allIngredients: [String] {
+        return Array(emojiMap.keys).sorted()
+    }
+    
+    // 获取某个类别下的所有食材
+    func getIngredients(in category: String) -> [String] {
+        return allIngredients.filter { ingredient in
+            IngredientCategoryManager.shared.getCategory(for: ingredient) == category
         }
     }
 }
