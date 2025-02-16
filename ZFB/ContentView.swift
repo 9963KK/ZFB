@@ -23,6 +23,8 @@ struct ContentView: View {
     @State private var showingFilterSheet = false
     @State private var showingCategoryCheckSheet = false
     @State private var filter = IngredientFilter()
+    @State private var draggedIngredient: Ingredient?
+    @State private var ingredientOrder: [NSManagedObjectID] = []
     
     // 获取所有可用的分类
     private var categories: [String] {
@@ -30,18 +32,50 @@ struct ContentView: View {
         return Array(Set(allCategories)).sorted()
     }
     
-    // 筛选后的食材
-    private var filteredIngredients: [Ingredient] {
-        Array(ingredients).filter { ingredient in
+    // 筛选并排序后的食材
+    private var sortedAndFilteredIngredients: [Ingredient] {
+        let filtered = Array(ingredients).filter { ingredient in
             filter.filter([ingredient]).contains(ingredient)
+        }
+        
+        if ingredientOrder.isEmpty {
+            return filtered
+        }
+        
+        // 根据自定义顺序排序
+        return filtered.sorted { ingredient1, ingredient2 in
+            guard let index1 = ingredientOrder.firstIndex(of: ingredient1.objectID),
+                  let index2 = ingredientOrder.firstIndex(of: ingredient2.objectID) else {
+                return false
+            }
+            return index1 < index2
         }
     }
     
     private func showIngredientEdit(_ ingredient: Ingredient) {
-        // 确保数据已经加载
         viewContext.refresh(ingredient, mergeChanges: true)
         selectedIngredient = ingredient
         showingEditSheet = true
+    }
+    
+    // 处理拖拽排序
+    private func handleIngredientDrag(ingredient: Ingredient, dragOffset: CGSize) {
+        let cardHeight: CGFloat = 120 // 估计的卡片高度
+        guard let currentIndex = sortedAndFilteredIngredients.firstIndex(where: { $0.objectID == ingredient.objectID }) else { return }
+        
+        // 计算目标位置
+        let targetIndex = currentIndex + Int(round(dragOffset.height / cardHeight))
+        let safeTargetIndex = max(0, min(targetIndex, sortedAndFilteredIngredients.count - 1))
+        
+        if safeTargetIndex != currentIndex {
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                // 更新顺序
+                var newOrder = sortedAndFilteredIngredients.map { $0.objectID }
+                let movedID = newOrder.remove(at: currentIndex)
+                newOrder.insert(movedID, at: safeTargetIndex)
+                ingredientOrder = newOrder
+            }
+        }
     }
     
     var body: some View {
@@ -55,10 +89,27 @@ struct ContentView: View {
                             .padding()
                     } else {
                         LazyVStack(spacing: 12) {
-                            ForEach(filteredIngredients, id: \.objectID) { ingredient in
-                                IngredientCard(ingredient: ingredient) {
-                                    showIngredientEdit(ingredient)
-                                }
+                            ForEach(sortedAndFilteredIngredients, id: \.objectID) { ingredient in
+                                IngredientCard(
+                                    ingredient: ingredient,
+                                    onPress: {
+                                        showIngredientEdit(ingredient)
+                                    },
+                                    onDragChanged: { offset in
+                                        if draggedIngredient == nil {
+                                            draggedIngredient = ingredient
+                                        }
+                                    },
+                                    onDragEnded: { offset in
+                                        if let draggedIngredient = draggedIngredient {
+                                            handleIngredientDrag(
+                                                ingredient: draggedIngredient,
+                                                dragOffset: offset
+                                            )
+                                        }
+                                        draggedIngredient = nil
+                                    }
+                                )
                             }
                         }
                         .padding()
@@ -82,6 +133,10 @@ struct ContentView: View {
                 }
                 .onAppear {
                     viewContext.refreshAllObjects()
+                    // 初始化排序顺序
+                    if ingredientOrder.isEmpty {
+                        ingredientOrder = ingredients.map { $0.objectID }
+                    }
                     isLoading = false
                 }
                 .sheet(isPresented: $showingAddSheet) {
@@ -128,6 +183,8 @@ struct IngredientCard: View {
     @State private var pressStartLocation: CGPoint? = nil
     @State private var dragOffset = CGSize.zero
     var onPress: () -> Void
+    var onDragChanged: (CGSize) -> Void
+    var onDragEnded: (CGSize) -> Void
     
     // 动画参数
     private let animationDuration: Double = 0.15
@@ -137,8 +194,11 @@ struct IngredientCard: View {
     private let springResponse: Double = 0.15
     
     // 长按参数
-    private let longPressThreshold: TimeInterval = 1.2
+    private let longPressThreshold: TimeInterval = 0.5
     private let moveThreshold: CGFloat = 30
+    
+    // 添加最大拖拽距离限制
+    private let maxDragDistance: CGFloat = 100
     
     var body: some View {
         HStack(spacing: 16) {
@@ -238,11 +298,16 @@ struct IngredientCard: View {
                             isDragging = true
                             isPressed = false
                         }
-                        // 更新拖拽偏移
+                        // 更新拖拽偏移，只允许垂直方向
+                        let verticalOffset = value.translation.height
+                        // 限制最大拖拽距离
+                        let limitedOffset = min(max(verticalOffset, -maxDragDistance), maxDragDistance)
                         dragOffset = CGSize(
-                            width: value.translation.width,
-                            height: value.translation.height
+                            width: 0, // 锁定水平方向
+                            height: limitedOffset
                         )
+                        // 通知父视图拖拽状态变化
+                        onDragChanged(dragOffset)
                     } else if let startLocation = pressStartLocation {
                         // 计算移动距离
                         let moveDistance = sqrt(
@@ -260,8 +325,14 @@ struct IngredientCard: View {
                 }
                 .onEnded { value in
                     if isDragging {
-                        // 结束拖拽
-                        withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
+                        // 结束拖拽，添加速度感知
+                        let velocity = value.velocity.height
+                        let animationDuration = abs(velocity) > 1000 ? 0.2 : 0.4
+                        
+                        // 通知父视图拖拽结束
+                        onDragEnded(dragOffset)
+                        
+                        withAnimation(.spring(response: animationDuration, dampingFraction: 0.7)) {
                             isDragging = false
                             dragOffset = .zero
                         }

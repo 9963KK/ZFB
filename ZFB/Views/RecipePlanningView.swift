@@ -14,6 +14,8 @@ struct Recipe: Identifiable {
 struct RecipeCard: View {
     let recipe: Recipe
     let onTap: () -> Void
+    let onDragChanged: (CGSize) -> Void
+    let onDragEnded: (CGSize) -> Void
     @State private var isPressed = false
     @State private var isDragging = false
     @State private var pressStartTime: Date? = nil
@@ -28,8 +30,11 @@ struct RecipeCard: View {
     private let springResponse: Double = 0.15
     
     // 长按参数
-    private let longPressThreshold: TimeInterval = 1.2
+    private let longPressThreshold: TimeInterval = 0.5
     private let moveThreshold: CGFloat = 30
+    
+    // 添加最大拖拽距离限制
+    private let maxDragDistance: CGFloat = 100
     
     // 计算难度星级
     private var difficultyStars: String {
@@ -112,11 +117,16 @@ struct RecipeCard: View {
                             isDragging = true
                             isPressed = false
                         }
-                        // 更新拖拽偏移
+                        // 更新拖拽偏移，只允许垂直方向
+                        let verticalOffset = value.translation.height
+                        // 限制最大拖拽距离
+                        let limitedOffset = min(max(verticalOffset, -maxDragDistance), maxDragDistance)
                         dragOffset = CGSize(
-                            width: value.translation.width,
-                            height: value.translation.height
+                            width: 0, // 锁定水平方向
+                            height: limitedOffset
                         )
+                        // 通知父视图拖拽状态变化
+                        onDragChanged(dragOffset)
                     } else if let startLocation = pressStartLocation {
                         // 计算移动距离
                         let moveDistance = sqrt(
@@ -134,8 +144,14 @@ struct RecipeCard: View {
                 }
                 .onEnded { value in
                     if isDragging {
-                        // 结束拖拽
-                        withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
+                        // 结束拖拽，添加速度感知
+                        let velocity = value.velocity.height
+                        let animationDuration = abs(velocity) > 1000 ? 0.2 : 0.4
+                        
+                        // 通知父视图拖拽结束
+                        onDragEnded(dragOffset)
+                        
+                        withAnimation(.spring(response: animationDuration, dampingFraction: 0.7)) {
                             isDragging = false
                             dragOffset = .zero
                         }
@@ -334,33 +350,51 @@ struct RecipePlanningView: View {
     @State private var showingFilters = false
     @State private var isCalendarVisible = true
     @State private var selectedRecipe: Recipe?
+    @State private var recipes: [[Recipe]] = [
+        // 早餐
+        [
+            Recipe(name: "皮蛋瘦肉粥", time: "30分钟", servings: "2人份", difficulty: "简单", tags: ["粥类", "热门"]),
+            Recipe(name: "三明治", time: "15分钟", servings: "2人份", difficulty: "简单", tags: ["面包", "快手"]),
+            Recipe(name: "煎饺", time: "20分钟", servings: "3人份", difficulty: "简单", tags: ["家常菜", "热门"])
+        ],
+        // 午餐
+        [
+            Recipe(name: "红烧排骨", time: "45分钟", servings: "4人份", difficulty: "中等", tags: ["家常菜", "热门", "肉类"]),
+            Recipe(name: "清炒小白菜", time: "20分钟", servings: "4人份", difficulty: "简单", tags: ["素菜", "快手"]),
+            Recipe(name: "番茄炒蛋", time: "15分钟", servings: "3人份", difficulty: "简单", tags: ["家常菜", "快手"])
+        ],
+        // 晚餐
+        [
+            Recipe(name: "水煮鱼", time: "40分钟", servings: "4人份", difficulty: "困难", tags: ["川菜", "热门", "海鲜"]),
+            Recipe(name: "宫保鸡丁", time: "35分钟", servings: "4人份", difficulty: "中等", tags: ["川菜", "热门", "肉类"]),
+            Recipe(name: "蒜蓉炒菜心", time: "15分钟", servings: "4人份", difficulty: "简单", tags: ["素菜", "快手"])
+        ]
+    ]
+    @State private var draggedRecipe: Recipe?
+    @State private var draggedMealTime: Int?
     
     private let mealTimes = ["早餐", "午餐", "晚餐"]
     private let calendar = Calendar.current
     
-    // 模拟不同餐点的食谱数据
-    private var recipesForSelectedMeal: [Recipe] {
-        switch selectedMealTime {
-        case 0: // 早餐
-            return [
-                Recipe(name: "皮蛋瘦肉粥", time: "30分钟", servings: "2人份", difficulty: "简单", tags: ["粥类", "热门"]),
-                Recipe(name: "三明治", time: "15分钟", servings: "2人份", difficulty: "简单", tags: ["面包", "快手"]),
-                Recipe(name: "煎饺", time: "20分钟", servings: "3人份", difficulty: "简单", tags: ["家常菜", "热门"])
-            ]
-        case 1: // 午餐
-            return [
-                Recipe(name: "红烧排骨", time: "45分钟", servings: "4人份", difficulty: "中等", tags: ["家常菜", "热门", "肉类"]),
-                Recipe(name: "清炒小白菜", time: "20分钟", servings: "4人份", difficulty: "简单", tags: ["素菜", "快手"]),
-                Recipe(name: "番茄炒蛋", time: "15分钟", servings: "3人份", difficulty: "简单", tags: ["家常菜", "快手"])
-            ]
-        case 2: // 晚餐
-            return [
-                Recipe(name: "水煮鱼", time: "40分钟", servings: "4人份", difficulty: "困难", tags: ["川菜", "热门", "海鲜"]),
-                Recipe(name: "宫保鸡丁", time: "35分钟", servings: "4人份", difficulty: "中等", tags: ["川菜", "热门", "肉类"]),
-                Recipe(name: "蒜蓉炒菜心", time: "15分钟", servings: "4人份", difficulty: "简单", tags: ["素菜", "快手"])
-            ]
-        default:
-            return []
+    // 处理拖拽排序
+    private func handleRecipeDrag(recipe: Recipe, dragOffset: CGSize, mealTimeIndex: Int) {
+        // 确保索引有效
+        guard mealTimeIndex >= 0 && mealTimeIndex < recipes.count,
+              let currentIndex = recipes[mealTimeIndex].firstIndex(where: { $0.id == recipe.id }) else { return }
+        
+        // 计算目标位置
+        let cardHeight: CGFloat = 120 // 估计的卡片高度
+        let targetIndex = currentIndex + Int(round(dragOffset.height / cardHeight))
+        let safeTargetIndex = max(0, min(targetIndex, recipes[mealTimeIndex].count - 1))
+        
+        if safeTargetIndex != currentIndex {
+            // 使用 withAnimation 包装整个移动过程
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                var updatedRecipes = recipes
+                let recipe = updatedRecipes[mealTimeIndex].remove(at: currentIndex)
+                updatedRecipes[mealTimeIndex].insert(recipe, at: safeTargetIndex)
+                recipes = updatedRecipes
+            }
         }
     }
     
@@ -432,10 +466,9 @@ struct RecipePlanningView: View {
     // MARK: - Body
     var body: some View {
         VStack(spacing: 0) {
-            // 新的日历视图
+            // 日历视图
             if isCalendarVisible {
                 CustomCalendarView(selectedDate: $selectedDate) { date in
-                    // 处理日期选择
                     print("选择日期: \(date)")
                 }
                 .padding(.horizontal)
@@ -454,13 +487,38 @@ struct RecipePlanningView: View {
             // 食谱列表
             ScrollView {
                 LazyVStack(spacing: 16) {
-                    ForEach(recipesForSelectedMeal) { recipe in
-                        RecipeCard(recipe: recipe) {
-                            withAnimation {
-                                selectedRecipe = recipe
-                            }
+                    // 添加安全检查
+                    if selectedMealTime >= 0 && selectedMealTime < recipes.count {
+                        ForEach(recipes[selectedMealTime].indices, id: \.self) { index in
+                            let recipe = recipes[selectedMealTime][index]
+                            RecipeCard(recipe: recipe,
+                                     onTap: {
+                                withAnimation {
+                                    selectedRecipe = recipe
+                                }
+                            },
+                                     onDragChanged: { offset in
+                                if draggedRecipe == nil {
+                                    draggedRecipe = recipe
+                                    draggedMealTime = selectedMealTime
+                                }
+                            },
+                                     onDragEnded: { offset in
+                                if let draggedRecipe = draggedRecipe,
+                                   draggedMealTime == selectedMealTime {
+                                    handleRecipeDrag(recipe: draggedRecipe,
+                                                   dragOffset: offset,
+                                                   mealTimeIndex: selectedMealTime)
+                                }
+                                draggedRecipe = nil
+                                draggedMealTime = nil
+                            })
+                            .padding(.horizontal)
+                            // 添加过渡动画
+                            .transition(.opacity.combined(with: .offset(x: 0, y: 50)))
+                            // 添加移动动画
+                            .animation(.spring(response: 0.3, dampingFraction: 0.7), value: index)
                         }
-                        .padding(.horizontal)
                     }
                 }
                 .padding(.vertical)
