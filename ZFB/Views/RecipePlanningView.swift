@@ -370,11 +370,21 @@ struct RecipePlanningView: View {
             Recipe(name: "蒜蓉炒菜心", time: "15分钟", servings: "4人份", difficulty: "简单", tags: ["素菜", "快手"])
         ]
     ]
+    // 添加 recipeOrders 数组来存储每个时段的食谱顺序
+    @State private var recipeOrders: [[UUID]] = Array(repeating: [], count: 3)
     @State private var draggedRecipe: Recipe?
     @State private var draggedMealTime: Int?
     
     private let mealTimes = ["早餐", "午餐", "晚餐"]
     private let calendar = Calendar.current
+    
+    // 初始化 recipeOrders
+    private func initializeRecipeOrders() {
+        // 为每个时段创建对应的顺序数组
+        for mealTimeIndex in 0..<recipes.count {
+            recipeOrders[mealTimeIndex] = recipes[mealTimeIndex].map { $0.id }
+        }
+    }
     
     // 处理拖拽排序
     private func handleRecipeDrag(recipe: Recipe, dragOffset: CGSize, mealTimeIndex: Int) {
@@ -394,6 +404,13 @@ struct RecipePlanningView: View {
                 let recipe = updatedRecipes[mealTimeIndex].remove(at: currentIndex)
                 updatedRecipes[mealTimeIndex].insert(recipe, at: safeTargetIndex)
                 recipes = updatedRecipes
+                
+                // 同步更新 recipeOrders
+                var updatedRecipeOrders = recipeOrders
+                let recipeId = recipe.id
+                updatedRecipeOrders[mealTimeIndex].remove(at: currentIndex)
+                updatedRecipeOrders[mealTimeIndex].insert(recipeId, at: safeTargetIndex)
+                recipeOrders = updatedRecipeOrders
             }
         }
     }
@@ -487,42 +504,39 @@ struct RecipePlanningView: View {
             // 食谱列表
             ScrollView {
                 LazyVStack(spacing: 16) {
-                    // 添加安全检查
-                    if selectedMealTime >= 0 && selectedMealTime < recipes.count {
-                        ForEach(recipes[selectedMealTime].indices, id: \.self) { index in
-                            let recipe = recipes[selectedMealTime][index]
-                            RecipeCard(recipe: recipe,
-                                     onTap: {
-                                withAnimation {
+                    ForEach(recipeOrders[selectedMealTime], id: \.self) { recipeId in
+                        if let recipe = recipes[selectedMealTime].first(where: { $0.id == recipeId }) {
+                            RecipeCard(
+                                recipe: recipe,
+                                onTap: {
                                     selectedRecipe = recipe
+                                },
+                                onDragChanged: { offset in
+                                    if draggedRecipe == nil {
+                                        draggedRecipe = recipe
+                                        draggedMealTime = selectedMealTime
+                                    }
+                                },
+                                onDragEnded: { offset in
+                                    if let draggedRecipe = draggedRecipe,
+                                       let draggedMealTime = draggedMealTime {
+                                        handleRecipeDrag(
+                                            recipe: draggedRecipe,
+                                            dragOffset: offset,
+                                            mealTimeIndex: draggedMealTime
+                                        )
+                                    }
+                                    draggedRecipe = nil
+                                    draggedMealTime = nil
                                 }
-                            },
-                                     onDragChanged: { offset in
-                                if draggedRecipe == nil {
-                                    draggedRecipe = recipe
-                                    draggedMealTime = selectedMealTime
-                                }
-                            },
-                                     onDragEnded: { offset in
-                                if let draggedRecipe = draggedRecipe,
-                                   draggedMealTime == selectedMealTime {
-                                    handleRecipeDrag(recipe: draggedRecipe,
-                                                   dragOffset: offset,
-                                                   mealTimeIndex: selectedMealTime)
-                                }
-                                draggedRecipe = nil
-                                draggedMealTime = nil
-                            })
-                            .padding(.horizontal)
-                            // 添加过渡动画
-                            .transition(.opacity.combined(with: .offset(x: 0, y: 50)))
-                            // 添加移动动画
-                            .animation(.spring(response: 0.3, dampingFraction: 0.7), value: index)
+                            )
+                            .frame(maxWidth: min(UIScreen.main.bounds.width - 48, 500))  // 限制最大宽度
                         }
                     }
                 }
                 .padding(.vertical)
             }
+            .padding(.horizontal, 18)  // 增加水平边距
         }
         .navigationTitle("食谱规划")
         .navigationBarItems(
@@ -538,6 +552,9 @@ struct RecipePlanningView: View {
         )
         .sheet(item: $selectedRecipe) { recipe in
             RecipeDetailView(recipe: recipe)
+        }
+        .onAppear {
+            initializeRecipeOrders()
         }
     }
 }

@@ -200,11 +200,12 @@
 				};
 			};
 			buildConfigurationList = 0834D0392D586CF7006BF458 /* Build configuration list for PBXProject "ZFB" */;
-			developmentRegion = en;
+			developmentRegion = "zh-Hans";
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
 				Base,
+				"zh-Hans",
 			);
 			mainGroup = 0834D0352D586CF7006BF458;
 			minimizedProjectReferenceProxies = 1;

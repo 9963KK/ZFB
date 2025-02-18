@@ -60,69 +60,82 @@ struct AddIngredientView: View {
                         HStack(spacing: 4) {
                             Text("分类")
                                 .foregroundColor(.secondary)
+                                .font(.subheadline)
                             Picker("", selection: $category) {
                                 ForEach(IngredientCategoryManager.shared.categories, id: \.self) { cat in
-                                    Text("\(IngredientIcon.getIcon(for: cat)) \(cat)")
-                                        .tag(cat)
-                                        .lineLimit(1)
-                                        .fixedSize()
+                                    HStack(spacing: 2) {
+                                        Text(IngredientIcon.getIcon(for: cat))
+                                            .font(.system(size: 14))
+                                        Text(cat)
+                                            .font(.system(size: 14))
+                                            .lineLimit(1)
+                                            .minimumScaleFactor(0.8)
+                                    }
+                                    .tag(cat)
+                                    .frame(minWidth: 60)
                                 }
                             }
                             .pickerStyle(MenuPickerStyle())
                             .labelsHidden()
                         }
-                        .frame(width: 150)
+                        .frame(width: 120)
                     }
                     .onChange(of: isNameFieldFocused) { isFocused in
                         if !isFocused && !name.isEmpty {
-                            // 当输入框失去焦点且内容不为空时检查类别
                             checkCategory()
                         }
                     }
                     
-                    HStack {
-                        if isIntegerUnit {
-                            Button(action: {
-                                let newValue = max(0, currentQuantity - 1)
-                                formatQuantity(newValue)
-                            }) {
-                                Image(systemName: "minus.circle.fill")
-                                    .foregroundColor(.blue)
-                                    .imageScale(.large)
+                    // 调味料数量和单位选择器
+                    GeometryReader { geometry in
+                        HStack(spacing: 8) {
+                            if isIntegerUnit {
+                                Button(action: {
+                                    let newValue = max(0, currentQuantity - 1)
+                                    formatQuantity(newValue)
+                                }) {
+                                    Image(systemName: "minus.circle.fill")
+                                        .foregroundColor(.blue)
+                                        .imageScale(.large)
+                                }
+                                .buttonStyle(BorderlessButtonStyle())
+                                .frame(width: 44)
                             }
-                            .buttonStyle(BorderlessButtonStyle())
-                        }
-                        
-                        TextField("数量", text: $quantity)
-                            .keyboardType(.decimalPad)
-                            .frame(minWidth: 50)
-                            .multilineTextAlignment(.center)
-                        
-                        if isIntegerUnit {
-                            Button(action: {
-                                let newValue = currentQuantity + 1
-                                formatQuantity(newValue)
-                            }) {
-                                Image(systemName: "plus.circle.fill")
-                                    .foregroundColor(.blue)
-                                    .imageScale(.large)
+                            
+                            TextField("数量", text: $quantity)
+                                .keyboardType(.decimalPad)
+                                .multilineTextAlignment(.center)
+                                .frame(width: geometry.size.width * 0.2)
+                            
+                            if isIntegerUnit {
+                                Button(action: {
+                                    let newValue = currentQuantity + 1
+                                    formatQuantity(newValue)
+                                }) {
+                                    Image(systemName: "plus.circle.fill")
+                                        .foregroundColor(.blue)
+                                        .imageScale(.large)
+                                }
+                                .buttonStyle(BorderlessButtonStyle())
+                                .frame(width: 44)
                             }
-                            .buttonStyle(BorderlessButtonStyle())
-                        }
-                        
-                        Picker("单位", selection: $unit) {
-                            ForEach(commonUnits, id: \.self) { unit in
-                                Text(unit).tag(unit)
+                            
+                            Picker("单位", selection: $unit) {
+                                ForEach(commonUnits, id: \.self) { unit in
+                                    Text(unit).tag(unit)
+                                }
+                            }
+                            .pickerStyle(MenuPickerStyle())
+                            .frame(width: geometry.size.width * 0.3)
+                            .onChange(of: unit) { newUnit in
+                                if let value = Double(quantity) {
+                                    quantity = UnitFormatter.format(quantity: value, unit: newUnit)
+                                }
                             }
                         }
-                        .onChange(of: unit) { newUnit in
-                            // 当单位改变时，重新格式化数量
-                            if let value = Double(quantity) {
-                                quantity = UnitFormatter.format(quantity: value, unit: newUnit)
-                            }
-                        }
-                        .pickerStyle(MenuPickerStyle())
+                        .frame(maxWidth: .infinity)
                     }
+                    .frame(height: 44)
                 }
                 
                 Section(header: Text("日期信息")) {
@@ -190,6 +203,20 @@ struct AddIngredientView: View {
     }
     
     private func saveIngredient() {
+        // 在保存前进行最后的类别检查
+        let suggestedCat = IngredientCategoryManager.shared.getCategory(for: name)
+        if suggestedCat == "其他" && category == "其他" {
+            // 如果是新的食材且当前选择的是"其他"类别，显示提示
+            suggestedCategory = "其他"
+            showingCategoryMismatchAlert = true
+            return
+        } else if suggestedCat != "其他" && suggestedCat != category {
+            // 如果有明确的建议分类，且与当前选择不同，显示建议
+            suggestedCategory = suggestedCat
+            showingCategoryMismatchAlert = true
+            return
+        }
+        
         let fetchRequest: NSFetchRequest<Ingredient> = Ingredient.fetchRequest()
         fetchRequest.predicate = NSPredicate(format: "name == %@", name)
         
@@ -227,12 +254,12 @@ struct AddIngredientView: View {
     private func checkCategory() {
         if !name.isEmpty {
             let suggestedCat = IngredientCategoryManager.shared.getCategory(for: name)
-            if suggestedCat == "其他" {
-                // 如果是新的食材（被归类为"其他"），显示提示
+            if suggestedCat == "其他" && category == "其他" {
+                // 如果是新的食材且当前选择的是"其他"类别，显示提示
                 suggestedCategory = "其他"
                 showingCategoryMismatchAlert = true
-            } else if suggestedCat != category {
-                // 如果有建议的其他分类，显示建议
+            } else if suggestedCat != "其他" && suggestedCat != category {
+                // 如果有明确的建议分类，且与当前选择不同，显示建议
                 suggestedCategory = suggestedCat
                 showingCategoryMismatchAlert = true
             }
