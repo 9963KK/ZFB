@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Changed
+- 优化食谱卡片手势处理
+  - 改进点击和滑动页面的判定逻辑
+  - 添加垂直滑动判定阈值(0.8)，更准确识别滑动意图
+  - 优化点击判定，同时检查总移动距离和方向
+  - 提升用户体验，减少误触发
+
 ## [1.1.9] - 2025-02-13
 
 ### Changed
