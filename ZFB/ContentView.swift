@@ -182,6 +182,7 @@ struct IngredientCard: View {
     @State private var pressStartTime: Date? = nil
     @State private var pressStartLocation: CGPoint? = nil
     @State private var dragOffset = CGSize.zero
+    @State private var totalMovement: CGFloat = 0
     var onPress: () -> Void
     var onDragChanged: (CGSize) -> Void
     var onDragEnded: (CGSize) -> Void
@@ -193,11 +194,10 @@ struct IngredientCard: View {
     private let springDamping: Double = 0.5
     private let springResponse: Double = 0.15
     
-    // 长按参数
+    // 手势参数
     private let longPressThreshold: TimeInterval = 0.5
-    private let moveThreshold: CGFloat = 30
-    
-    // 添加最大拖拽距离限制
+    private let moveThreshold: CGFloat = 8  // 增加移动阈值，减少误触发
+    private let tapThreshold: CGFloat = 3   // 减小点击阈值，提高点击精确度
     private let maxDragDistance: CGFloat = 100
     
     var body: some View {
@@ -278,92 +278,93 @@ struct IngredientCard: View {
         .animation(.spring(response: springResponse, dampingFraction: springDamping), value: isPressed)
         .animation(.spring(response: 0.4, dampingFraction: 0.7), value: isDragging)
         .animation(.spring(response: 0.4, dampingFraction: 0.7), value: dragOffset)
-        .gesture(
+        .contentShape(Rectangle())
+        .simultaneousGesture(
             DragGesture(minimumDistance: 0)
                 .onChanged { value in
                     if pressStartTime == nil {
-                        // 开始按压
                         pressStartTime = Date()
                         pressStartLocation = value.location
                         withAnimation(.easeInOut(duration: animationDuration)) {
                             isPressed = true
                         }
+                        totalMovement = 0
                     }
                     
                     let pressDuration = Date().timeIntervalSince(pressStartTime ?? Date())
                     
-                    if pressDuration >= longPressThreshold {
-                        // 长按时间达到阈值，进入拖拽模式
-                        withAnimation {
-                            isDragging = true
-                            isPressed = false
-                        }
-                        // 更新拖拽偏移，只允许垂直方向
-                        let verticalOffset = value.translation.height
-                        // 限制最大拖拽距离
-                        let limitedOffset = min(max(verticalOffset, -maxDragDistance), maxDragDistance)
-                        dragOffset = CGSize(
-                            width: 0, // 锁定水平方向
-                            height: limitedOffset
-                        )
-                        // 通知父视图拖拽状态变化
-                        onDragChanged(dragOffset)
-                    } else if let startLocation = pressStartLocation {
-                        // 计算移动距离
-                        let moveDistance = sqrt(
+                    if let startLocation = pressStartLocation {
+                        // 计算移动距离和方向
+                        let verticalMovement = abs(value.location.y - startLocation.y)
+                        let horizontalMovement = abs(value.location.x - startLocation.x)
+                        let currentMovement = sqrt(
                             pow(value.location.x - startLocation.x, 2) +
                             pow(value.location.y - startLocation.y, 2)
                         )
+                        totalMovement = currentMovement
                         
-                        // 如果移动距离超过阈值，取消按压状态
-                        if moveDistance > moveThreshold {
+                        // 优先判断是否为滚动意图
+                        if verticalMovement > moveThreshold && verticalMovement > horizontalMovement * 1.2 {
+                            // 明显的垂直滑动意图，取消所有卡片操作
                             withAnimation(.easeInOut(duration: animationDuration)) {
                                 isPressed = false
+                                isDragging = false
+                                dragOffset = .zero
+                            }
+                            pressStartTime = nil
+                            pressStartLocation = nil
+                            return
+                        }
+                        
+                        // 处理其他手势意图
+                        if currentMovement > moveThreshold {
+                            withAnimation(.easeInOut(duration: animationDuration)) {
+                                isPressed = false
+                            }
+                            
+                            // 长按进入拖拽模式
+                            if pressDuration >= longPressThreshold {
+                                withAnimation {
+                                    isDragging = true
+                                    isPressed = false
+                                }
+                                
+                                // 更新拖拽偏移，只允许垂直方向
+                                let verticalOffset = value.translation.height
+                                let limitedOffset = min(max(verticalOffset, -maxDragDistance), maxDragDistance)
+                                dragOffset = CGSize(width: 0, height: limitedOffset)
+                                onDragChanged(dragOffset)
                             }
                         }
                     }
                 }
                 .onEnded { value in
                     if isDragging {
-                        // 结束拖拽，添加速度感知
-                        let velocity = value.velocity.height
-                        let animationDuration = abs(velocity) > 1000 ? 0.2 : 0.4
-                        
-                        // 通知父视图拖拽结束
+                        // 结束拖拽
                         onDragEnded(dragOffset)
-                        
-                        withAnimation(.spring(response: animationDuration, dampingFraction: 0.7)) {
+                        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
                             isDragging = false
                             dragOffset = .zero
                         }
                         
-                        // 添加触觉反馈
+                        // 触觉反馈
                         let generator = UIImpactFeedbackGenerator(style: .medium)
                         generator.impactOccurred()
-                    } else if let startTime = pressStartTime,
-                              let startLocation = pressStartLocation {
-                        let pressDuration = Date().timeIntervalSince(startTime)
-                        let moveDistance = sqrt(
-                            pow(value.location.x - startLocation.x, 2) +
-                            pow(value.location.y - startLocation.y, 2)
-                        )
-                        
+                    } else {
                         withAnimation(.easeInOut(duration: animationDuration)) {
                             isPressed = false
                         }
                         
-                        // 只有在移动距离小于阈值时才触发点击事件
-                        if moveDistance < moveThreshold {
-                            if pressDuration < longPressThreshold {
-                                // 短按
-                                onPress()
-                            }
+                        // 只有在移动距离小于点击阈值，且主要是水平移动时才触发点击事件
+                        if totalMovement < tapThreshold {
+                            onPress()
                         }
                     }
                     
                     // 重置状态
                     pressStartTime = nil
                     pressStartLocation = nil
+                    totalMovement = 0
                 }
         )
     }
