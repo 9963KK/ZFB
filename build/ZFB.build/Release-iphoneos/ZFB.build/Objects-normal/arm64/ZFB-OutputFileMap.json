@@ -1,0 +1,135 @@
+{
+  "" : {
+    "const-values" : "/Users/jenkinschen5/Desktop/1.Files/ZFB/build/ZFB.build/Release-iphoneos/ZFB.build/Objects-normal/arm64/ZFB-master.swiftconstvalues",
+    "dependencies" : "/Users/jenkinschen5/Desktop/1.Files/ZFB/build/ZFB.build/Release-iphoneos/ZFB.build/Objects-normal/arm64/ZFB-master.d",
+    "diagnostics" : "/Users/jenkinschen5/Desktop/1.Files/ZFB/build/ZFB.build/Release-iphoneos/ZFB.build/Objects-normal/arm64/ZFB-master.dia",
+    "emit-module-dependencies" : "/Users/jenkinschen5/Desktop/1.Files/ZFB/build/ZFB.build/Release-iphoneos/ZFB.build/Objects-normal/arm64/ZFB-master-emit-module.d",
+    "emit-module-diagnostics" : "/Users/jenkinschen5/Desktop/1.Files/ZFB/build/ZFB.build/Release-iphoneos/ZFB.build/Objects-normal/arm64/ZFB-master-emit-module.dia",
+    "swift-dependencies" : "/Users/jenkinschen5/Desktop/1.Files/ZFB/build/ZFB.build/Release-iphoneos/ZFB.build/Objects-normal/arm64/ZFB-master.swiftdeps"
+  },
+  "/Users/jenkinschen5/Desktop/1.Files/ZFB/ZFB/AIService/params.swift" : {
+    "index-unit-output-path" : "/ZFB.build/Release-iphoneos/ZFB.build/Objects-normal/arm64/params.o",
+    "llvm-bc" : "/Users/jenkinschen5/Desktop/1.Files/ZFB/build/ZFB.build/Release-iphoneos/ZFB.build/Objects-normal/arm64/params.bc",
+    "object" : "/Users/jenkinschen5/Desktop/1.Files/ZFB/build/ZFB.build/Release-iphoneos/ZFB.build/Objects-normal/arm64/params.o"
+  },
+  "/Users/jenkinschen5/Desktop/1.Files/ZFB/ZFB/ContentView.swift" : {
+    "index-unit-output-path" : "/ZFB.build/Release-iphoneos/ZFB.build/Objects-normal/arm64/ContentView.o",
+    "llvm-bc" : "/Users/jenkinschen5/Desktop/1.Files/ZFB/build/ZFB.build/Release-iphoneos/ZFB.build/Objects-normal/arm64/ContentView.bc",
+    "object" : "/Users/jenkinschen5/Desktop/1.Files/ZFB/build/ZFB.build/Release-iphoneos/ZFB.build/Objects-normal/arm64/ContentView.o"
+  },
+  "/Users/jenkinschen5/Desktop/1.Files/ZFB/ZFB/Models/History.swift" : {
+    "index-unit-output-path" : "/ZFB.build/Release-iphoneos/ZFB.build/Objects-normal/arm64/History.o",
+    "llvm-bc" : "/Users/jenkinschen5/Desktop/1.Files/ZFB/build/ZFB.build/Release-iphoneos/ZFB.build/Objects-normal/arm64/History.bc",
+    "object" : "/Users/jenkinschen5/Desktop/1.Files/ZFB/build/ZFB.build/Release-iphoneos/ZFB.build/Objects-normal/arm64/History.o"
+  },
+  "/Users/jenkinschen5/Desktop/1.Files/ZFB/ZFB/Models/IngredientCategoryManager.swift" : {
+    "index-unit-output-path" : "/ZFB.build/Release-iphoneos/ZFB.build/Objects-normal/arm64/IngredientCategoryManager.o",
+    "llvm-bc" : "/Users/jenkinschen5/Desktop/1.Files/ZFB/build/ZFB.build/Release-iphoneos/ZFB.build/Objects-normal/arm64/IngredientCategoryManager.bc",
+    "object" : "/Users/jenkinschen5/Desktop/1.Files/ZFB/build/ZFB.build/Release-iphoneos/ZFB.build/Objects-normal/arm64/IngredientCategoryManager.o"
+  },
+  "/Users/jenkinschen5/Desktop/1.Files/ZFB/ZFB/Models/IngredientColorManager.swift" : {
+    "index-unit-output-path" : "/ZFB.build/Release-iphoneos/ZFB.build/Objects-normal/arm64/IngredientColorManager.o",
+    "llvm-bc" : "/Users/jenkinschen5/Desktop/1.Files/ZFB/build/ZFB.build/Release-iphoneos/ZFB.build/Objects-normal/arm64/IngredientColorManager.bc",
+    "object" : "/Users/jenkinschen5/Desktop/1.Files/ZFB/build/ZFB.build/Release-iphoneos/ZFB.build/Objects-normal/arm64/IngredientColorManager.o"
+  },
+  "/Users/jenkinschen5/Desktop/1.Files/ZFB/ZFB/Models/IngredientEmojiManager.swift" : {
+    "index-unit-output-path" : "/ZFB.build/Release-iphoneos/ZFB.build/Objects-normal/arm64/IngredientEmojiManager.o",
+    "llvm-bc" : "/Users/jenkinschen5/Desktop/1.Files/ZFB/build/ZFB.build/Release-iphoneos/ZFB.build/Objects-normal/arm64/IngredientEmojiManager.bc",
+    "object" : "/Users/jenkinschen5/Desktop/1.Files/ZFB/build/ZFB.build/Release-iphoneos/ZFB.build/Objects-normal/arm64/IngredientEmojiManager.o"
+  },
+  "/Users/jenkinschen5/Desktop/1.Files/ZFB/ZFB/Models/IngredientFilter.swift" : {
+    "index-unit-output-path" : "/ZFB.build/Release-iphoneos/ZFB.build/Objects-normal/arm64/IngredientFilter.o",
+    "llvm-bc" : "/Users/jenkinschen5/Desktop/1.Files/ZFB/build/ZFB.build/Release-iphoneos/ZFB.build/Objects-normal/arm64/IngredientFilter.bc",
+    "object" : "/Users/jenkinschen5/Desktop/1.Files/ZFB/build/ZFB.build/Release-iphoneos/ZFB.build/Objects-normal/arm64/IngredientFilter.o"
+  },
+  "/Users/jenkinschen5/Desktop/1.Files/ZFB/ZFB/Models/IngredientIcon.swift" : {
+    "index-unit-output-path" : "/ZFB.build/Release-iphoneos/ZFB.build/Objects-normal/arm64/IngredientIcon.o",
+    "llvm-bc" : "/Users/jenkinschen5/Desktop/1.Files/ZFB/build/ZFB.build/Release-iphoneos/ZFB.build/Objects-normal/arm64/IngredientIcon.bc",
+    "object" : "/Users/jenkinschen5/Desktop/1.Files/ZFB/build/ZFB.build/Release-iphoneos/ZFB.build/Objects-normal/arm64/IngredientIcon.o"
+  },
+  "/Users/jenkinschen5/Desktop/1.Files/ZFB/ZFB/Models/IngredientUnitManager.swift" : {
+    "index-unit-output-path" : "/ZFB.build/Release-iphoneos/ZFB.build/Objects-normal/arm64/IngredientUnitManager.o",
+    "llvm-bc" : "/Users/jenkinschen5/Desktop/1.Files/ZFB/build/ZFB.build/Release-iphoneos/ZFB.build/Objects-normal/arm64/IngredientUnitManager.bc",
+    "object" : "/Users/jenkinschen5/Desktop/1.Files/ZFB/build/ZFB.build/Release-iphoneos/ZFB.build/Objects-normal/arm64/IngredientUnitManager.o"
+  },
+  "/Users/jenkinschen5/Desktop/1.Files/ZFB/ZFB/Models/UnitFormatter.swift" : {
+    "index-unit-output-path" : "/ZFB.build/Release-iphoneos/ZFB.build/Objects-normal/arm64/UnitFormatter.o",
+    "llvm-bc" : "/Users/jenkinschen5/Desktop/1.Files/ZFB/build/ZFB.build/Release-iphoneos/ZFB.build/Objects-normal/arm64/UnitFormatter.bc",
+    "object" : "/Users/jenkinschen5/Desktop/1.Files/ZFB/build/ZFB.build/Release-iphoneos/ZFB.build/Objects-normal/arm64/UnitFormatter.o"
+  },
+  "/Users/jenkinschen5/Desktop/1.Files/ZFB/ZFB/Persistence.swift" : {
+    "index-unit-output-path" : "/ZFB.build/Release-iphoneos/ZFB.build/Objects-normal/arm64/Persistence.o",
+    "llvm-bc" : "/Users/jenkinschen5/Desktop/1.Files/ZFB/build/ZFB.build/Release-iphoneos/ZFB.build/Objects-normal/arm64/Persistence.bc",
+    "object" : "/Users/jenkinschen5/Desktop/1.Files/ZFB/build/ZFB.build/Release-iphoneos/ZFB.build/Objects-normal/arm64/Persistence.o"
+  },
+  "/Users/jenkinschen5/Desktop/1.Files/ZFB/ZFB/Views/AddIngredientView.swift" : {
+    "index-unit-output-path" : "/ZFB.build/Release-iphoneos/ZFB.build/Objects-normal/arm64/AddIngredientView.o",
+    "llvm-bc" : "/Users/jenkinschen5/Desktop/1.Files/ZFB/build/ZFB.build/Release-iphoneos/ZFB.build/Objects-normal/arm64/AddIngredientView.bc",
+    "object" : "/Users/jenkinschen5/Desktop/1.Files/ZFB/build/ZFB.build/Release-iphoneos/ZFB.build/Objects-normal/arm64/AddIngredientView.o"
+  },
+  "/Users/jenkinschen5/Desktop/1.Files/ZFB/ZFB/Views/DateSelectionView.swift" : {
+    "index-unit-output-path" : "/ZFB.build/Release-iphoneos/ZFB.build/Objects-normal/arm64/DateSelectionView.o",
+    "llvm-bc" : "/Users/jenkinschen5/Desktop/1.Files/ZFB/build/ZFB.build/Release-iphoneos/ZFB.build/Objects-normal/arm64/DateSelectionView.bc",
+    "object" : "/Users/jenkinschen5/Desktop/1.Files/ZFB/build/ZFB.build/Release-iphoneos/ZFB.build/Objects-normal/arm64/DateSelectionView.o"
+  },
+  "/Users/jenkinschen5/Desktop/1.Files/ZFB/ZFB/Views/EditIngredientView.swift" : {
+    "index-unit-output-path" : "/ZFB.build/Release-iphoneos/ZFB.build/Objects-normal/arm64/EditIngredientView.o",
+    "llvm-bc" : "/Users/jenkinschen5/Desktop/1.Files/ZFB/build/ZFB.build/Release-iphoneos/ZFB.build/Objects-normal/arm64/EditIngredientView.bc",
+    "object" : "/Users/jenkinschen5/Desktop/1.Files/ZFB/build/ZFB.build/Release-iphoneos/ZFB.build/Objects-normal/arm64/EditIngredientView.o"
+  },
+  "/Users/jenkinschen5/Desktop/1.Files/ZFB/ZFB/Views/IngredientCategoryCheckView.swift" : {
+    "index-unit-output-path" : "/ZFB.build/Release-iphoneos/ZFB.build/Objects-normal/arm64/IngredientCategoryCheckView.o",
+    "llvm-bc" : "/Users/jenkinschen5/Desktop/1.Files/ZFB/build/ZFB.build/Release-iphoneos/ZFB.build/Objects-normal/arm64/IngredientCategoryCheckView.bc",
+    "object" : "/Users/jenkinschen5/Desktop/1.Files/ZFB/build/ZFB.build/Release-iphoneos/ZFB.build/Objects-normal/arm64/IngredientCategoryCheckView.o"
+  },
+  "/Users/jenkinschen5/Desktop/1.Files/ZFB/ZFB/Views/IngredientFilterView.swift" : {
+    "index-unit-output-path" : "/ZFB.build/Release-iphoneos/ZFB.build/Objects-normal/arm64/IngredientFilterView.o",
+    "llvm-bc" : "/Users/jenkinschen5/Desktop/1.Files/ZFB/build/ZFB.build/Release-iphoneos/ZFB.build/Objects-normal/arm64/IngredientFilterView.bc",
+    "object" : "/Users/jenkinschen5/Desktop/1.Files/ZFB/build/ZFB.build/Release-iphoneos/ZFB.build/Objects-normal/arm64/IngredientFilterView.o"
+  },
+  "/Users/jenkinschen5/Desktop/1.Files/ZFB/ZFB/Views/RecipeDetailView.swift" : {
+    "index-unit-output-path" : "/ZFB.build/Release-iphoneos/ZFB.build/Objects-normal/arm64/RecipeDetailView.o",
+    "llvm-bc" : "/Users/jenkinschen5/Desktop/1.Files/ZFB/build/ZFB.build/Release-iphoneos/ZFB.build/Objects-normal/arm64/RecipeDetailView.bc",
+    "object" : "/Users/jenkinschen5/Desktop/1.Files/ZFB/build/ZFB.build/Release-iphoneos/ZFB.build/Objects-normal/arm64/RecipeDetailView.o"
+  },
+  "/Users/jenkinschen5/Desktop/1.Files/ZFB/ZFB/Views/RecipePlanningView.swift" : {
+    "index-unit-output-path" : "/ZFB.build/Release-iphoneos/ZFB.build/Objects-normal/arm64/RecipePlanningView.o",
+    "llvm-bc" : "/Users/jenkinschen5/Desktop/1.Files/ZFB/build/ZFB.build/Release-iphoneos/ZFB.build/Objects-normal/arm64/RecipePlanningView.bc",
+    "object" : "/Users/jenkinschen5/Desktop/1.Files/ZFB/build/ZFB.build/Release-iphoneos/ZFB.build/Objects-normal/arm64/RecipePlanningView.o"
+  },
+  "/Users/jenkinschen5/Desktop/1.Files/ZFB/ZFB/ZFBApp.swift" : {
+    "index-unit-output-path" : "/ZFB.build/Release-iphoneos/ZFB.build/Objects-normal/arm64/ZFBApp.o",
+    "llvm-bc" : "/Users/jenkinschen5/Desktop/1.Files/ZFB/build/ZFB.build/Release-iphoneos/ZFB.build/Objects-normal/arm64/ZFBApp.bc",
+    "object" : "/Users/jenkinschen5/Desktop/1.Files/ZFB/build/ZFB.build/Release-iphoneos/ZFB.build/Objects-normal/arm64/ZFBApp.o"
+  },
+  "/Users/jenkinschen5/Desktop/1.Files/ZFB/build/ZFB.build/Release-iphoneos/ZFB.build/DerivedSources/CoreDataGenerated/ZFB/Ingredient+CoreDataClass.swift" : {
+    "index-unit-output-path" : "/ZFB.build/Release-iphoneos/ZFB.build/Objects-normal/arm64/Ingredient+CoreDataClass.o",
+    "llvm-bc" : "/Users/jenkinschen5/Desktop/1.Files/ZFB/build/ZFB.build/Release-iphoneos/ZFB.build/Objects-normal/arm64/Ingredient+CoreDataClass.bc",
+    "object" : "/Users/jenkinschen5/Desktop/1.Files/ZFB/build/ZFB.build/Release-iphoneos/ZFB.build/Objects-normal/arm64/Ingredient+CoreDataClass.o"
+  },
+  "/Users/jenkinschen5/Desktop/1.Files/ZFB/build/ZFB.build/Release-iphoneos/ZFB.build/DerivedSources/CoreDataGenerated/ZFB/Ingredient+CoreDataProperties.swift" : {
+    "index-unit-output-path" : "/ZFB.build/Release-iphoneos/ZFB.build/Objects-normal/arm64/Ingredient+CoreDataProperties.o",
+    "llvm-bc" : "/Users/jenkinschen5/Desktop/1.Files/ZFB/build/ZFB.build/Release-iphoneos/ZFB.build/Objects-normal/arm64/Ingredient+CoreDataProperties.bc",
+    "object" : "/Users/jenkinschen5/Desktop/1.Files/ZFB/build/ZFB.build/Release-iphoneos/ZFB.build/Objects-normal/arm64/Ingredient+CoreDataProperties.o"
+  },
+  "/Users/jenkinschen5/Desktop/1.Files/ZFB/build/ZFB.build/Release-iphoneos/ZFB.build/DerivedSources/CoreDataGenerated/ZFB/Item+CoreDataClass.swift" : {
+    "index-unit-output-path" : "/ZFB.build/Release-iphoneos/ZFB.build/Objects-normal/arm64/Item+CoreDataClass.o",
+    "llvm-bc" : "/Users/jenkinschen5/Desktop/1.Files/ZFB/build/ZFB.build/Release-iphoneos/ZFB.build/Objects-normal/arm64/Item+CoreDataClass.bc",
+    "object" : "/Users/jenkinschen5/Desktop/1.Files/ZFB/build/ZFB.build/Release-iphoneos/ZFB.build/Objects-normal/arm64/Item+CoreDataClass.o"
+  },
+  "/Users/jenkinschen5/Desktop/1.Files/ZFB/build/ZFB.build/Release-iphoneos/ZFB.build/DerivedSources/CoreDataGenerated/ZFB/Item+CoreDataProperties.swift" : {
+    "index-unit-output-path" : "/ZFB.build/Release-iphoneos/ZFB.build/Objects-normal/arm64/Item+CoreDataProperties.o",
+    "llvm-bc" : "/Users/jenkinschen5/Desktop/1.Files/ZFB/build/ZFB.build/Release-iphoneos/ZFB.build/Objects-normal/arm64/Item+CoreDataProperties.bc",
+    "object" : "/Users/jenkinschen5/Desktop/1.Files/ZFB/build/ZFB.build/Release-iphoneos/ZFB.build/Objects-normal/arm64/Item+CoreDataProperties.o"
+  },
+  "/Users/jenkinschen5/Desktop/1.Files/ZFB/build/ZFB.build/Release-iphoneos/ZFB.build/DerivedSources/CoreDataGenerated/ZFB/ZFB+CoreDataModel.swift" : {
+    "index-unit-output-path" : "/ZFB.build/Release-iphoneos/ZFB.build/Objects-normal/arm64/ZFB+CoreDataModel.o",
+    "llvm-bc" : "/Users/jenkinschen5/Desktop/1.Files/ZFB/build/ZFB.build/Release-iphoneos/ZFB.build/Objects-normal/arm64/ZFB+CoreDataModel.bc",
+    "object" : "/Users/jenkinschen5/Desktop/1.Files/ZFB/build/ZFB.build/Release-iphoneos/ZFB.build/Objects-normal/arm64/ZFB+CoreDataModel.o"
+  },
+  "/Users/jenkinschen5/Desktop/1.Files/ZFB/build/ZFB.build/Release-iphoneos/ZFB.build/DerivedSources/GeneratedAssetSymbols.swift" : {
+    "index-unit-output-path" : "/ZFB.build/Release-iphoneos/ZFB.build/Objects-normal/arm64/GeneratedAssetSymbols.o",
+    "llvm-bc" : "/Users/jenkinschen5/Desktop/1.Files/ZFB/build/ZFB.build/Release-iphoneos/ZFB.build/Objects-normal/arm64/GeneratedAssetSymbols.bc",
+    "object" : "/Users/jenkinschen5/Desktop/1.Files/ZFB/build/ZFB.build/Release-iphoneos/ZFB.build/Objects-normal/arm64/GeneratedAssetSymbols.o"
+  }
+}

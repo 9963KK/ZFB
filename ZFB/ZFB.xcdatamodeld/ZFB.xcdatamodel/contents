@@ -14,4 +14,9 @@
     <entity name="Item" representedClassName="Item" syncable="YES" codeGenerationType="class">
         <attribute name="timestamp" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
     </entity>
+    <entity name="MealHistory" representedClassName="MealHistory" syncable="YES" codeGenerationType="class">
+        <attribute name="datetime" optional="NO" attributeType="Date"/>
+        <attribute name="meal" optional="NO" attributeType="String"/>
+        <attribute name="recipeName" optional="NO" attributeType="String"/>
+    </entity>
 </model>

@@ -1,0 +1,35 @@
+version: "Apple Swift version 6.0.3 (swiftlang-6.0.3.1.10 clang-1600.0.30.1)"
+options: "db49fcac1d0e10690a896e933801b1ca620741895c65882868a9296343bdf9e2"
+build_start_time: [1740492846, 647645000]
+build_end_time: [1740492852, 900753000]
+inputs:
+  "/Users/jenkinschen5/Desktop/1.Files/ZFB/ZFB/AIService/params.swift": [1739958809, 463927456]
+  "/Users/jenkinschen5/Desktop/1.Files/ZFB/ZFB/ContentView.swift": [1740117659, 202880046]
+  "/Users/jenkinschen5/Desktop/1.Files/ZFB/ZFB/Models/History.swift": [1740492401, 108204714]
+  "/Users/jenkinschen5/Desktop/1.Files/ZFB/ZFB/Models/IngredientCategoryManager.swift": [1739605750, 179419955]
+  "/Users/jenkinschen5/Desktop/1.Files/ZFB/ZFB/Models/IngredientColorManager.swift": [1739517734, 976665008]
+  "/Users/jenkinschen5/Desktop/1.Files/ZFB/ZFB/Models/IngredientEmojiManager.swift": [1739517734, 969342140]
+  "/Users/jenkinschen5/Desktop/1.Files/ZFB/ZFB/Models/IngredientFilter.swift": [1739603771, 654078968]
+  "/Users/jenkinschen5/Desktop/1.Files/ZFB/ZFB/Models/IngredientIcon.swift": [1739517734, 958985143]
+  "/Users/jenkinschen5/Desktop/1.Files/ZFB/ZFB/Models/IngredientUnitManager.swift": [1739517734, 980401337]
+  "/Users/jenkinschen5/Desktop/1.Files/ZFB/ZFB/Models/UnitFormatter.swift": [1739517734, 966267762]
+  "/Users/jenkinschen5/Desktop/1.Files/ZFB/ZFB/Persistence.swift": [1739953776, 981484356]
+  "/Users/jenkinschen5/Desktop/1.Files/ZFB/ZFB/Views/AddIngredientView.swift": [1739954434, 49077301]
+  "/Users/jenkinschen5/Desktop/1.Files/ZFB/ZFB/Views/DateSelectionView.swift": [1739760811, 274520384]
+  "/Users/jenkinschen5/Desktop/1.Files/ZFB/ZFB/Views/EditIngredientView.swift": [1739760811, 269907675]
+  "/Users/jenkinschen5/Desktop/1.Files/ZFB/ZFB/Views/IngredientCategoryCheckView.swift": [1739605446, 329222713]
+  "/Users/jenkinschen5/Desktop/1.Files/ZFB/ZFB/Views/IngredientFilterView.swift": [1739605749, 175645804]
+  "/Users/jenkinschen5/Desktop/1.Files/ZFB/ZFB/Views/RecipeDetailView.swift": [1740309083, 326268590]
+  "/Users/jenkinschen5/Desktop/1.Files/ZFB/ZFB/Views/RecipePlanningView.swift": [1740492454, 727427445]
+  "/Users/jenkinschen5/Desktop/1.Files/ZFB/ZFB/ZFBApp.swift": [1739517734, 958774146]
+  ? "/Users/jenkinschen5/Desktop/1.Files/ZFB/build/ZFB.build/Release-iphoneos/ZFB.build/DerivedSources/CoreDataGenerated/ZFB/Ingredient+CoreDataClass.swift"
+  : [1740492846, 591529038]
+  ? "/Users/jenkinschen5/Desktop/1.Files/ZFB/build/ZFB.build/Release-iphoneos/ZFB.build/DerivedSources/CoreDataGenerated/ZFB/Ingredient+CoreDataProperties.swift"
+  : [1740492846, 591881249]
+  ? "/Users/jenkinschen5/Desktop/1.Files/ZFB/build/ZFB.build/Release-iphoneos/ZFB.build/DerivedSources/CoreDataGenerated/ZFB/Item+CoreDataClass.swift"
+  : [1740492846, 592869797]
+  ? "/Users/jenkinschen5/Desktop/1.Files/ZFB/build/ZFB.build/Release-iphoneos/ZFB.build/DerivedSources/CoreDataGenerated/ZFB/Item+CoreDataProperties.swift"
+  : [1740492846, 593157049]
+  ? "/Users/jenkinschen5/Desktop/1.Files/ZFB/build/ZFB.build/Release-iphoneos/ZFB.build/DerivedSources/CoreDataGenerated/ZFB/ZFB+CoreDataModel.swift"
+  : [1740492846, 590372655]
+  "/Users/jenkinschen5/Desktop/1.Files/ZFB/build/ZFB.build/Release-iphoneos/ZFB.build/DerivedSources/GeneratedAssetSymbols.swift": [1740492846, 327365289]

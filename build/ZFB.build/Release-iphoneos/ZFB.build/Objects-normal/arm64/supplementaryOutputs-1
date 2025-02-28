@@ -1,0 +1,9 @@
+"/Users/jenkinschen5/Desktop/1.Files/ZFB/ZFB/AIService/params.swift":
+  const-values: "/Users/jenkinschen5/Desktop/1.Files/ZFB/build/ZFB.build/Release-iphoneos/ZFB.build/Objects-normal/arm64/ZFB-master.swiftconstvalues"
+  swiftsourceinfo: "/Users/jenkinschen5/Desktop/1.Files/ZFB/build/ZFB.build/Release-iphoneos/ZFB.build/Objects-normal/arm64/ZFB.swiftsourceinfo"
+  dependencies: "/Users/jenkinschen5/Desktop/1.Files/ZFB/build/ZFB.build/Release-iphoneos/ZFB.build/Objects-normal/arm64/ZFB-master.d"
+  swiftmodule: "/Users/jenkinschen5/Desktop/1.Files/ZFB/build/ZFB.build/Release-iphoneos/ZFB.build/Objects-normal/arm64/ZFB.swiftmodule"
+  diagnostics: "/Users/jenkinschen5/Desktop/1.Files/ZFB/build/ZFB.build/Release-iphoneos/ZFB.build/Objects-normal/arm64/ZFB-master.dia"
+  swiftdoc: "/Users/jenkinschen5/Desktop/1.Files/ZFB/build/ZFB.build/Release-iphoneos/ZFB.build/Objects-normal/arm64/ZFB.swiftdoc"
+  objc-header: "/Users/jenkinschen5/Desktop/1.Files/ZFB/build/ZFB.build/Release-iphoneos/ZFB.build/Objects-normal/arm64/ZFB-Swift.h"
+  abi-baseline-json: "/Users/jenkinschen5/Desktop/1.Files/ZFB/build/ZFB.build/Release-iphoneos/ZFB.build/Objects-normal/arm64/ZFB.abi.json"

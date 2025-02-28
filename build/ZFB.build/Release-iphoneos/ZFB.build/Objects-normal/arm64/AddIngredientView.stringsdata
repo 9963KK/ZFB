@@ -1,0 +1,176 @@
+{
+  "source": "/Users/jenkinschen5/Desktop/1.Files/ZFB/ZFB/Views/AddIngredientView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "添加食材",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 165
+        }
+      },
+      {
+        "comment": "",
+        "key": "提示",
+        "location": {
+          "startingColumn": 20,
+          "startingLine": 183
+        }
+      },
+      {
+        "comment": "",
+        "key": "食材类别不匹配",
+        "location": {
+          "startingColumn": 20,
+          "startingLine": 188
+        }
+      },
+      {
+        "comment": "",
+        "key": "基本信息",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 48
+        }
+      },
+      {
+        "comment": "",
+        "key": "日期信息",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 141
+        }
+      },
+      {
+        "comment": "",
+        "key": "备注",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 145
+        }
+      },
+      {
+        "comment": "",
+        "key": "图片",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 150
+        }
+      },
+      {
+        "comment": "",
+        "key": "名称",
+        "location": {
+          "startingColumn": 35,
+          "startingLine": 50
+        }
+      },
+      {
+        "comment": "",
+        "key": "分类",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 61
+        }
+      },
+      {
+        "comment": "",
+        "key": "",
+        "location": {
+          "startingColumn": 36,
+          "startingLine": 64
+        }
+      },
+      {
+        "comment": "",
+        "key": "数量",
+        "location": {
+          "startingColumn": 39,
+          "startingLine": 105
+        }
+      },
+      {
+        "comment": "",
+        "key": "单位",
+        "location": {
+          "startingColumn": 36,
+          "startingLine": 123
+        }
+      },
+      {
+        "comment": "",
+        "key": "选择图片",
+        "location": {
+          "startingColumn": 54,
+          "startingLine": 155
+        }
+      },
+      {
+        "comment": "",
+        "key": "更换图片",
+        "location": {
+          "startingColumn": 71,
+          "startingLine": 155
+        }
+      },
+      {
+        "comment": "",
+        "key": "取消",
+        "location": {
+          "startingColumn": 28,
+          "startingLine": 169
+        }
+      },
+      {
+        "comment": "",
+        "key": "保存",
+        "location": {
+          "startingColumn": 28,
+          "startingLine": 174
+        }
+      },
+      {
+        "comment": "",
+        "key": "确定",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 184
+        }
+      },
+      {
+        "comment": "",
+        "key": "更新为%@",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 189
+        }
+      },
+      {
+        "comment": "",
+        "key": "保持现有类别",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 194
+        }
+      },
+      {
+        "comment": "",
+        "key": "这是一个新的食材类别，建议将其标记为待分类。是否将\"%@\"设置为\"其他\"类别？",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 197
+        }
+      },
+      {
+        "comment": "",
+        "key": "检测到\"%@\"可能属于\"%@\"类别，是否要更新？",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 199
+        }
+      }
+    ]
+  },
+  "version": 1
+}

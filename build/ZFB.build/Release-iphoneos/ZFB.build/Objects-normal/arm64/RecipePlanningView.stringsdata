@@ -1,0 +1,32 @@
+{
+  "source": "/Users/jenkinschen5/Desktop/1.Files/ZFB/ZFB/Views/RecipePlanningView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "%lld",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 234
+        }
+      },
+      {
+        "comment": "",
+        "key": "食谱规划",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 575
+        }
+      },
+      {
+        "comment": "",
+        "key": "用餐时间",
+        "location": {
+          "startingColumn": 20,
+          "startingLine": 530
+        }
+      }
+    ]
+  },
+  "version": 1
+}

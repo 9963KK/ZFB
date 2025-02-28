@@ -1,0 +1,280 @@
+{
+  "source": "/Users/jenkinschen5/Desktop/1.Files/ZFB/ZFB/Views/EditIngredientView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "编辑食材",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 210
+        }
+      },
+      {
+        "comment": "",
+        "key": "确认删除",
+        "location": {
+          "startingColumn": 20,
+          "startingLine": 233
+        }
+      },
+      {
+        "comment": "",
+        "key": "放弃更改",
+        "location": {
+          "startingColumn": 20,
+          "startingLine": 241
+        }
+      },
+      {
+        "comment": "",
+        "key": "食材类别不匹配",
+        "location": {
+          "startingColumn": 20,
+          "startingLine": 249
+        }
+      },
+      {
+        "comment": "",
+        "key": "食材已用完",
+        "location": {
+          "startingColumn": 20,
+          "startingLine": 259
+        }
+      },
+      {
+        "comment": "",
+        "key": "食材重复",
+        "location": {
+          "startingColumn": 20,
+          "startingLine": 266
+        }
+      },
+      {
+        "comment": "",
+        "key": "基本信息",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 83
+        }
+      },
+      {
+        "comment": "",
+        "key": "日期信息",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 160
+        }
+      },
+      {
+        "comment": "",
+        "key": "备注",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 164
+        }
+      },
+      {
+        "comment": "",
+        "key": "图片",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 170
+        }
+      },
+      {
+        "comment": "",
+        "key": "名称",
+        "location": {
+          "startingColumn": 35,
+          "startingLine": 85
+        }
+      },
+      {
+        "comment": "",
+        "key": "分类",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 92
+        }
+      },
+      {
+        "comment": "",
+        "key": "",
+        "location": {
+          "startingColumn": 36,
+          "startingLine": 94
+        }
+      },
+      {
+        "comment": "",
+        "key": "%@ %@",
+        "location": {
+          "startingColumn": 42,
+          "startingLine": 96
+        }
+      },
+      {
+        "comment": "",
+        "key": "数量",
+        "location": {
+          "startingColumn": 35,
+          "startingLine": 123
+        }
+      },
+      {
+        "comment": "",
+        "key": "单位",
+        "location": {
+          "startingColumn": 32,
+          "startingLine": 144
+        }
+      },
+      {
+        "comment": "",
+        "key": "更换图片",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 175
+        }
+      },
+      {
+        "comment": "",
+        "key": "撤销所有更改",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 190
+        }
+      },
+      {
+        "comment": "",
+        "key": "删除食材",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 204
+        }
+      },
+      {
+        "comment": "",
+        "key": "取消",
+        "location": {
+          "startingColumn": 28,
+          "startingLine": 214
+        }
+      },
+      {
+        "comment": "",
+        "key": "保存",
+        "location": {
+          "startingColumn": 28,
+          "startingLine": 224
+        }
+      },
+      {
+        "comment": "",
+        "key": "删除",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 234
+        }
+      },
+      {
+        "comment": "",
+        "key": "取消",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 237
+        }
+      },
+      {
+        "comment": "",
+        "key": "确定要删除这个食材吗？此操作无法撤销。",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 239
+        }
+      },
+      {
+        "comment": "",
+        "key": "放弃",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 242
+        }
+      },
+      {
+        "comment": "",
+        "key": "继续编辑",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 245
+        }
+      },
+      {
+        "comment": "",
+        "key": "您有未保存的更改，确定要放弃吗？",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 247
+        }
+      },
+      {
+        "comment": "",
+        "key": "更新为%@",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 250
+        }
+      },
+      {
+        "comment": "",
+        "key": "保持现有类别",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 255
+        }
+      },
+      {
+        "comment": "",
+        "key": "检测到\"%@\"可能属于\"%@\"类别，是否要更新？",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 257
+        }
+      },
+      {
+        "comment": "",
+        "key": "确定",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 260
+        }
+      },
+      {
+        "comment": "",
+        "key": "\"%@\"已用完，将被标记为已用完状态",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 264
+        }
+      },
+      {
+        "comment": "",
+        "key": "确定",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 267
+        }
+      },
+      {
+        "comment": "",
+        "key": "已经存在相同名称的食材",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 269
+        }
+      }
+    ]
+  },
+  "version": 1
+}

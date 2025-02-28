@@ -1,0 +1,5 @@
+---
+triple:          'arm64-apple-darwin'
+binary-path:     '/Users/jenkinschen5/Desktop/1.Files/ZFB/build/Release-iphoneos/ZFB.app/ZFB'
+relocations:     []
+...

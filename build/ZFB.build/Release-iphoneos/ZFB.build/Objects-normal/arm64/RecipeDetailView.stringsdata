@@ -1,0 +1,32 @@
+{
+  "source": "/Users/jenkinschen5/Desktop/1.Files/ZFB/ZFB/Views/RecipeDetailView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "食材",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 97
+        }
+      },
+      {
+        "comment": "",
+        "key": "步骤",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 117
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld",
+        "location": {
+          "startingColumn": 46,
+          "startingLine": 123
+        }
+      }
+    ]
+  },
+  "version": 1
+}

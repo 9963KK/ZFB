@@ -1,0 +1,72 @@
+{
+  "source": "/Users/jenkinschen5/Desktop/1.Files/ZFB/ZFB/ContentView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "我的食材",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 118
+        }
+      },
+      {
+        "comment": "",
+        "key": "加载中...",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 87
+        }
+      },
+      {
+        "comment": "",
+        "key": "检查类别",
+        "location": {
+          "startingColumn": 39,
+          "startingLine": 123
+        }
+      },
+      {
+        "comment": "",
+        "key": "筛选",
+        "location": {
+          "startingColumn": 39,
+          "startingLine": 126
+        }
+      },
+      {
+        "comment": "",
+        "key": "添加食材",
+        "location": {
+          "startingColumn": 39,
+          "startingLine": 129
+        }
+      },
+      {
+        "comment": "",
+        "key": "食材",
+        "location": {
+          "startingColumn": 23,
+          "startingLine": 162
+        }
+      },
+      {
+        "comment": "",
+        "key": "食谱",
+        "location": {
+          "startingColumn": 23,
+          "startingLine": 171
+        }
+      },
+      {
+        "comment": "",
+        "key": "🈳",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 234
+        }
+      }
+    ]
+  },
+  "version": 1
+}

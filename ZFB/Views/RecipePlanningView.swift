@@ -1,4 +1,6 @@
 import SwiftUI
+import CoreData
+import UIKit
 
 // 食谱数据模型
 struct Recipe: Identifiable {
@@ -10,32 +12,76 @@ struct Recipe: Identifiable {
     let tags: [String]
 }
 
+// 示例食谱数据
+let sampleRecipes: [Recipe] = [
+    // 早餐
+    Recipe(name: "皮蛋瘦肉粥", time: "30分钟", servings: "2人份", difficulty: "简单", tags: ["粥类", "热门"]),
+    Recipe(name: "三明治", time: "15分钟", servings: "2人份", difficulty: "简单", tags: ["面包", "快手"]),
+    Recipe(name: "煎饺", time: "20分钟", servings: "3人份", difficulty: "简单", tags: ["家常菜", "热门"]),
+    // 午餐
+    Recipe(name: "红烧排骨", time: "45分钟", servings: "4人份", difficulty: "中等", tags: ["家常菜", "热门", "肉类"]),
+    Recipe(name: "清炒小白菜", time: "20分钟", servings: "4人份", difficulty: "简单", tags: ["素菜", "快手"]),
+    Recipe(name: "番茄炒蛋", time: "15分钟", servings: "3人份", difficulty: "简单", tags: ["家常菜", "快手"]),
+    // 晚餐
+    Recipe(name: "水煮鱼", time: "40分钟", servings: "4人份", difficulty: "困难", tags: ["川菜", "热门", "海鲜"]),
+    Recipe(name: "宫保鸡丁", time: "35分钟", servings: "4人份", difficulty: "中等", tags: ["川菜", "热门", "肉类"]),
+    Recipe(name: "蒜蓉炒菜心", time: "15分钟", servings: "4人份", difficulty: "简单", tags: ["素菜", "快手"])
+]
+
+// 生成过往饮食记录并存入 MealHistory
+func generatePastMealHistory(context: NSManagedObjectContext) {
+    let pastMeals: [(Date, String, String)] = [
+        (Calendar.current.date(byAdding: .day, value: -1, to: Date())!, "早餐", "皮蛋瘦肉粥"),
+        (Calendar.current.date(byAdding: .day, value: -1, to: Date())!, "午餐", "红烧排骨"),
+        (Calendar.current.date(byAdding: .day, value: -1, to: Date())!, "晚餐", "水煮鱼"),
+        (Calendar.current.date(byAdding: .day, value: -2, to: Date())!, "早餐", "三明治"),
+        (Calendar.current.date(byAdding: .day, value: -2, to: Date())!, "午餐", "清炒小白菜"),
+        (Calendar.current.date(byAdding: .day, value: -2, to: Date())!, "晚餐", "宫保鸡丁")
+    ]
+
+    for meal in pastMeals {
+        let mealHistory = MealHistory(context: context)
+        mealHistory.datetime = meal.0
+        mealHistory.meal = meal.1
+        mealHistory.recipeName = meal.2
+    }
+
+    do {
+        try context.save()
+    } catch {
+        print("保存饮食记录失败: \(error)")
+    }
+}
+
 // 食谱卡片组件
 struct RecipeCard: View {
     let recipe: Recipe
     let onTap: () -> Void
     let onDragChanged: (CGSize) -> Void
     let onDragEnded: (CGSize) -> Void
+    @Environment(\ .managedObjectContext) private var viewContext
     @State private var isPressed = false
     @State private var isDragging = false
     @State private var pressStartTime: Date? = nil
     @State private var pressStartLocation: CGPoint? = nil
     @State private var dragOffset = CGSize.zero
     @State private var totalMovement: CGFloat = 0
+    @State private var showActionSheet = false
+    @State private var selectedAction: String?
     
     // 动画参数
-    private let animationDuration: Double = 0.15
-    private let pressScale: Double = 0.98
-    private let dragScale: Double = 1.05
-    private let springDamping: Double = 0.5
-    private let springResponse: Double = 0.15
+    private let animationDuration: Double = 0.15  // 减少动画持续时间，提升响应速度
+    private let pressScale: Double = 0.98        // 优化缩放比例
+    private let dragScale: Double = 1.02         // 减小拖拽时的缩放幅度
+    private let springDamping: Double = 0.5      // 调整弹性系数
+    private let springResponse: Double = 0.15     // 加快响应速度
     
     // 手势参数
-    private let longPressThreshold: TimeInterval = 0.5
-    private let moveThreshold: CGFloat = 8  // 增加移动阈值，减少误触发
-    private let tapThreshold: CGFloat = 3   // 减小点击阈值，提高点击精确度
-    private let maxDragDistance: CGFloat = 100
-    private let verticalScrollThreshold: CGFloat = 0.8  // 垂直滑动判定阈值（垂直/水平比例）
+    private let longPressThreshold: TimeInterval = 0.6  // 缩短长按触发时间
+    private let moveThreshold: CGFloat = 3       // 降低移动阈值，提高灵敏度
+    private let tapThreshold: CGFloat = 3        // 保持点击阈值
+    private let maxDragDistance: CGFloat = 100   // 保持最大拖拽距离
+    private let verticalScrollThreshold: CGFloat = 0.8  // 垂直滑动判定阈值
     
     // 计算难度星级
     private var difficultyStars: String {
@@ -87,115 +133,56 @@ struct RecipeCard: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(
             RoundedRectangle(cornerRadius: 12)
-                .fill(Color(uiColor: .systemGray6))
-                .shadow(color: isDragging ? .black.opacity(0.15) : .black.opacity(0.05),
-                       radius: isDragging ? 8 : 2,
+                .fill(Color(.systemGray6))
+                .shadow(color: isDragging ? .black.opacity(0.12) : .black.opacity(0.06),
+                       radius: isDragging ? 6 : 3,
                        x: 0,
-                       y: isDragging ? 4 : 1)
+                       y: isDragging ? 3 : 1)
         )
         .scaleEffect(isDragging ? dragScale : (isPressed ? pressScale : 1.0))
         .offset(dragOffset)
         .animation(.spring(response: springResponse, dampingFraction: springDamping), value: isPressed)
-        .animation(.spring(response: 0.4, dampingFraction: 0.7), value: isDragging)
-        .animation(.spring(response: 0.4, dampingFraction: 0.7), value: dragOffset)
+        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isDragging)
+        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: dragOffset)
         .contentShape(Rectangle())
         .simultaneousGesture(
-            DragGesture(minimumDistance: 0)
-                .onChanged { value in
-                    if pressStartTime == nil {
-                        pressStartTime = Date()
-                        pressStartLocation = value.location
-                        withAnimation(.easeInOut(duration: animationDuration)) {
-                            isPressed = true
-                        }
-                        totalMovement = 0
-                    }
-                    
-                    let pressDuration = Date().timeIntervalSince(pressStartTime ?? Date())
-                    
-                    if let startLocation = pressStartLocation {
-                        // 计算移动距离和方向
-                        let verticalMovement = abs(value.location.y - startLocation.y)
-                        let horizontalMovement = abs(value.location.x - startLocation.x)
-                        let currentMovement = sqrt(
-                            pow(value.location.x - startLocation.x, 2) +
-                            pow(value.location.y - startLocation.y, 2)
-                        )
-                        totalMovement = currentMovement
-                        
-                        // 判断是否为明显的垂直滑动
-                        if currentMovement > moveThreshold {
-                            let isVerticalScroll = verticalMovement > horizontalMovement * verticalScrollThreshold
-                            
-                            if isVerticalScroll {
-                                // 明显的垂直滑动意图，取消所有卡片操作
-                                withAnimation(.easeInOut(duration: animationDuration)) {
-                                    isPressed = false
-                                    isDragging = false
-                                    dragOffset = .zero
-                                }
-                                pressStartTime = nil
-                                pressStartLocation = nil
-                                return
-                            }
-                            
-                            withAnimation(.easeInOut(duration: animationDuration)) {
-                                isPressed = false
-                            }
-                            
-                            // 长按进入拖拽模式
-                            if pressDuration >= longPressThreshold {
-                                withAnimation {
-                                    isDragging = true
-                                    isPressed = false
-                                }
-                                
-                                // 更新拖拽偏移，只允许垂直方向
-                                let verticalOffset = value.translation.height
-                                let limitedOffset = min(max(verticalOffset, -maxDragDistance), maxDragDistance)
-                                dragOffset = CGSize(width: 0, height: limitedOffset)
-                                onDragChanged(dragOffset)
-                            }
-                        }
-                    }
+            LongPressGesture(minimumDuration: longPressThreshold)
+                .onChanged { _ in
+                    isPressed = true
                 }
-                .onEnded { value in
-                    if isDragging {
-                        // 结束拖拽
-                        onDragEnded(dragOffset)
-                        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                            isDragging = false
-                            dragOffset = .zero
-                        }
-                        
-                        // 触觉反馈
-                        let generator = UIImpactFeedbackGenerator(style: .medium)
-                        generator.impactOccurred()
-                    } else {
-                        withAnimation(.easeInOut(duration: animationDuration)) {
-                            isPressed = false
-                        }
-                        
-                        // 判断是否为有效点击
-                        if let startLocation = pressStartLocation {
-                            let verticalMovement = abs(value.location.y - startLocation.y)
-                            let horizontalMovement = abs(value.location.x - startLocation.x)
-                            
-                            // 只有在移动距离很小，且不是明显的垂直滑动时才触发点击
-                            if totalMovement < tapThreshold && 
-                               verticalMovement < tapThreshold &&
-                               horizontalMovement < tapThreshold {
-                                onTap()
-                            }
-                        }
-                    }
-                    
-                    // 重置状态
-                    pressStartTime = nil
-                    pressStartLocation = nil
-                    totalMovement = 0
+                .onEnded { _ in
+                    showActionSheet = true
+                    isPressed = false
                 }
         )
+        .onTapGesture {
+            if !showActionSheet {
+                withAnimation {
+                    onTap()
+                }
+            }
+        }
+        .actionSheet(isPresented: $showActionSheet) {
+            ActionSheet(title: Text("选择操作"), message: nil, buttons: [
+                .default(Text("选中")) {
+                    // 记录饮食历史的逻辑
+                    let mealHistory = MealHistory(context: viewContext)
+                    mealHistory.datetime = Date()
+                    mealHistory.meal = "早餐" // 这里可以根据实际情况设置
+                    mealHistory.recipeName = recipe.name
+                    // 保存到 Core Data
+                    do {
+                        try viewContext.save()
+                    } catch {
+                        print("保存失败: \(error)")
+                    }
+                },
+                .destructive(Text("删除")) {
+                    // 删除食谱的逻辑
+                },
+                .cancel()
+            ])
+        }
     }
 }
 
@@ -315,9 +302,12 @@ struct CustomCalendarView: View {
                             )
                             .frame(maxWidth: .infinity)
                             .onTapGesture {
-                                withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                                    selectedDate = date
-                                    onDateSelected(date)
+                                // 禁止选择当前日期之后的日期
+                                if calendar.isDateInToday(date) || date < Date() {
+                                    withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                                        selectedDate = date
+                                        onDateSelected(date)
+                                    }
                                 }
                             }
                             .opacity(calendar.isDate(date, equalTo: currentMonth, toGranularity: .month) ? 1 : 0.3)
@@ -328,7 +318,7 @@ struct CustomCalendarView: View {
             .padding(.horizontal, 8)
         }
         .padding(.vertical)
-        .background(Color(uiColor: .systemBackground))
+        .background(Color(.systemBackground))
         .cornerRadius(16)
         .shadow(color: Color.black.opacity(0.05), radius: 10, x: 0, y: 2)
     }
@@ -354,7 +344,7 @@ struct CustomCalendarView: View {
 
 struct RecipePlanningView: View {
     // MARK: - Properties
-    @Environment(\.managedObjectContext) private var viewContext
+    @Environment(\ .managedObjectContext) private var viewContext
     @State private var selectedDate = Date()
     @State private var showingAddRecipe = false
     @State private var selectedMealTime = 0
@@ -497,7 +487,12 @@ struct RecipePlanningView: View {
             // 日历视图
             if isCalendarVisible {
                 CustomCalendarView(selectedDate: $selectedDate) { date in
-                    print("选择日期: \(date)")
+                    // 禁止选择当前日期之后的日期
+                    if calendar.isDateInToday(date) || date < Date() {
+                        print("选择日期: \(date)")
+                        // 加载饮食记录
+                        generatePastMealHistory(context: viewContext)
+                    }
                 }
                 .padding(.horizontal)
                 .transition(.move(edge: .top).combined(with: .opacity))
